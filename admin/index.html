@@ -108,6 +108,20 @@
 
             <button type="submit" id="submit-btn" class="btn-submit">Sign In</button>
         </form>
+
+        <form id="reset-password-form" style="display:none;">
+            <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" placeholder="Enter new password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" placeholder="Confirm new password" required minlength="6">
+            </div>
+
+            <button type="submit" id="reset-submit-btn" class="btn-submit">Update Password</button>
+        </form>
     </div>
 
     <script>
@@ -121,6 +135,15 @@
         if(SUPABASE_URL.startsWith('http')) {
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             checkActiveSession();
+
+            // Detect password recovery links and show the reset form
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('reset-password-form').style.display = 'block';
+                    document.querySelector('.login-header p').innerText = 'Enter a new password for your account.';
+                }
+            });
         } else {
             console.warn("Supabase URL missing. Running in demo mode.");
         }
@@ -181,6 +204,49 @@
                     submitBtn.innerText = "Sign In";
                     submitBtn.disabled = false;
                 }
+            }
+        });
+
+        // ==========================================
+        // PASSWORD RESET LOGIC
+        // ==========================================
+        const resetForm = document.getElementById('reset-password-form');
+        const resetSubmitBtn = document.getElementById('reset-submit-btn');
+
+        resetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            errorBox.style.display = 'none';
+
+            if (newPassword !== confirmPassword) {
+                errorBox.innerText = "Passwords do not match.";
+                errorBox.style.display = 'block';
+                return;
+            }
+
+            resetSubmitBtn.innerText = "Updating...";
+            resetSubmitBtn.disabled = true;
+
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+                if (error) throw error;
+
+                errorBox.style.color = '#155724';
+                errorBox.style.background = '#d4edda';
+                errorBox.innerText = "Password updated successfully! Redirecting to login...";
+                errorBox.style.display = 'block';
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } catch (error) {
+                errorBox.innerText = error.message;
+                errorBox.style.display = 'block';
+                resetSubmitBtn.innerText = "Update Password";
+                resetSubmitBtn.disabled = false;
             }
         });
 
