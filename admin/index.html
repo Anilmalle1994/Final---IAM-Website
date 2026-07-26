@@ -57,14 +57,7 @@
             background: var(--light-gray); transition: all 0.3s ease;
         }
         .form-group input:focus { outline: none; border-color: var(--primary); background: var(--white); }
-
-        .password-wrapper { position: relative; }
-        .toggle-password {
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: var(--gray); font-size: 12px;
-            cursor: pointer; font-weight: 600;
-        }
-        .toggle-password:hover { color: var(--primary); }
+        .form-group input:read-only { background: #e9ecef; color: #6c757d; cursor: not-allowed; }
 
         .btn-submit {
             background: var(--primary); color: var(--white); border: none; 
@@ -72,13 +65,21 @@
             cursor: pointer; width: 100%; transition: 0.3s ease;
             margin-top: 10px;
         }
-        .btn-submit:hover { background: #d9561a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(242, 101, 34, 0.3); }
+        .btn-submit:hover:not(:disabled) { background: #d9561a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(242, 101, 34, 0.3); }
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
 
         .error-message {
             color: #dc3545; background: #ffe6e6; padding: 10px; border-radius: 8px;
             font-size: 13px; font-weight: 600; margin-bottom: 20px; display: none;
         }
+        
+        .success-message {
+            color: #28a745; background: #d4edda; padding: 10px; border-radius: 8px;
+            font-size: 13px; font-weight: 600; margin-bottom: 20px; display: none;
+        }
+
+        /* Hide OTP block initially */
+        #otp-group { display: none; }
     </style>
 </head>
 <body>
@@ -87,40 +88,25 @@
         <div class="login-header">
             <img src="../LOGO.jpg.jpeg" alt="iam designs logo" onerror="this.src='https://via.placeholder.com/150x50?text=LOGO'">
             <h2>Admin Login</h2>
-            <p>Enter your email and password to access the workspace.</p>
+            <p id="instruction-text">Enter your email to receive a One-Time Password.</p>
         </div>
 
         <div id="error-box" class="error-message"></div>
+        <div id="success-box" class="success-message"></div>
 
         <form id="login-form">
-            <div class="form-group">
+            <div class="form-group" id="email-group">
                 <label for="email">Email Address</label>
                 <input type="email" id="email" placeholder="admin@anilmalle.in" required autocomplete="email">
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
-                    <button type="button" class="toggle-password" onclick="togglePassword()">SHOW</button>
-                </div>
+            <!-- OTP Input (Hidden initially) -->
+            <div class="form-group" id="otp-group">
+                <label for="otp">One-Time Password (OTP)</label>
+                <input type="text" id="otp" placeholder="Enter 6-digit code" autocomplete="one-time-code">
             </div>
 
-            <button type="submit" id="submit-btn" class="btn-submit">Sign In</button>
-        </form>
-
-        <form id="reset-password-form" style="display:none;">
-            <div class="form-group">
-                <label for="new-password">New Password</label>
-                <input type="password" id="new-password" placeholder="Enter new password" required minlength="6">
-            </div>
-
-            <div class="form-group">
-                <label for="confirm-password">Confirm New Password</label>
-                <input type="password" id="confirm-password" placeholder="Confirm new password" required minlength="6">
-            </div>
-
-            <button type="submit" id="reset-submit-btn" class="btn-submit">Update Password</button>
+            <button type="submit" id="submit-btn" class="btn-submit">Send OTP</button>
         </form>
     </div>
 
@@ -128,142 +114,122 @@
         // ==========================================
         // SUPABASE CONFIGURATION
         // ==========================================
-        const SUPABASE_URL = 'https://wrqkrpysvhtjenxyytfp.supabase.co'; // <-- INSERT YOURS HERE
-        const SUPABASE_ANON_KEY = 'sb_publishable_-DXwYtZ4x8XSt1DV_sQc-w_wA7Ir0N_'; // <-- INSERT YOURS HERE
+        const SUPABASE_URL = 'https://wrqkrpysvhtjenxyytfp.supabase.co'; // <-- Keep yours
+        const SUPABASE_ANON_KEY = 'sb_publishable_-DXwYtZ4x8XSt1DV_sQc-w_wA7Ir0N_'; // <-- Keep yours
 
         let supabaseClient = null;
         if(SUPABASE_URL.startsWith('http')) {
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             checkActiveSession();
-
-            // Detect password recovery links and show the reset form
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (event === 'PASSWORD_RECOVERY') {
-                    document.getElementById('login-form').style.display = 'none';
-                    document.getElementById('reset-password-form').style.display = 'block';
-                    document.querySelector('.login-header p').innerText = 'Enter a new password for your account.';
-                }
-            });
-        } else {
-            console.warn("Supabase URL missing. Running in demo mode.");
         }
 
         // If user is already logged in, send them straight to the dashboard
         async function checkActiveSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                window.location.href = 'workspace.html'; // Change to your actual dashboard filename
+                window.location.href = 'workspace.html'; 
             }
         }
 
         // ==========================================
-        // LOGIN LOGIC
+        // LOGIN LOGIC (OTP FLOW)
         // ==========================================
         const loginForm = document.getElementById('login-form');
         const submitBtn = document.getElementById('submit-btn');
         const errorBox = document.getElementById('error-box');
+        const successBox = document.getElementById('success-box');
+        const emailInput = document.getElementById('email');
+        const otpInput = document.getElementById('otp');
+        const otpGroup = document.getElementById('otp-group');
+        const instructionText = document.getElementById('instruction-text');
+
+        let isOtpSent = false;
+        let currentUserEmail = "";
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            // UI Feedback
-            submitBtn.innerText = "Signing in...";
-            submitBtn.disabled = true;
+            // Reset UI Messages
             errorBox.style.display = 'none';
+            successBox.style.display = 'none';
 
-            if(supabaseClient) {
+            if (!supabaseClient) {
+                showError("Supabase is not configured properly.");
+                return;
+            }
+
+            // STEP 1: SEND OTP
+            if (!isOtpSent) {
+                const email = emailInput.value.trim();
+                submitBtn.innerText = "Sending Code...";
+                submitBtn.disabled = true;
+
                 try {
-                    // Attempt Login with Email & Password
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    const { data, error } = await supabaseClient.auth.signInWithOtp({
                         email: email,
-                        password: password,
+                        options: {
+                            // Prevents new users from signing up via OTP if this is Admin-only
+                            shouldCreateUser: false 
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    // Transition UI to Step 2
+                    isOtpSent = true;
+                    currentUserEmail = email;
+                    
+                    emailInput.readOnly = true; // Lock the email field
+                    otpGroup.style.display = 'block'; // Show OTP input
+                    otpInput.setAttribute("required", "true"); // Make OTP required now
+                    
+                    instructionText.innerText = "Check your inbox and enter the 6-digit code.";
+                    submitBtn.innerText = "Verify & Sign In";
+                    submitBtn.disabled = false;
+                    
+                    successBox.innerText = "OTP sent successfully!";
+                    successBox.style.display = 'block';
+
+                } catch (error) {
+                    showError(error.message);
+                    submitBtn.innerText = "Send OTP";
+                    submitBtn.disabled = false;
+                }
+            } 
+            
+            // STEP 2: VERIFY OTP
+            else {
+                const token = otpInput.value.trim();
+                submitBtn.innerText = "Verifying...";
+                submitBtn.disabled = true;
+
+                try {
+                    const { data: { session }, error } = await supabaseClient.auth.verifyOtp({
+                        email: currentUserEmail,
+                        token: token,
+                        type: 'email'
                     });
 
                     if (error) throw error;
 
                     // Success! Redirect to workspace
-                    window.location.href = 'workspace.html'; // <-- Update to match your dashboard file name
+                    window.location.href = 'workspace.html'; 
                     
                 } catch (error) {
-                    // Handle Errors (Wrong password, invalid email, etc.)
-                    errorBox.innerText = error.message;
-                    errorBox.style.display = 'block';
-                    submitBtn.innerText = "Sign In";
+                    showError(error.message);
+                    submitBtn.innerText = "Verify & Sign In";
                     submitBtn.disabled = false;
                 }
-            } else {
-                // DEMO MODE (If Supabase keys aren't added yet)
-                if (email === "admin@anilmalle.in" && password === "admin123") {
-                    window.location.href = 'workspace.html'; // Change to your dashboard filename
-                } else {
-                    errorBox.innerText = "Demo Mode: Use admin@anilmalle.in / admin123";
-                    errorBox.style.display = 'block';
-                    submitBtn.innerText = "Sign In";
-                    submitBtn.disabled = false;
-                }
-            }
-        });
-
-        // ==========================================
-        // PASSWORD RESET LOGIC
-        // ==========================================
-        const resetForm = document.getElementById('reset-password-form');
-        const resetSubmitBtn = document.getElementById('reset-submit-btn');
-
-        resetForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            errorBox.style.display = 'none';
-
-            if (newPassword !== confirmPassword) {
-                errorBox.innerText = "Passwords do not match.";
-                errorBox.style.display = 'block';
-                return;
-            }
-
-            resetSubmitBtn.innerText = "Updating...";
-            resetSubmitBtn.disabled = true;
-
-            try {
-                const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-                if (error) throw error;
-
-                errorBox.style.color = '#155724';
-                errorBox.style.background = '#d4edda';
-                errorBox.innerText = "Password updated successfully! Redirecting to login...";
-                errorBox.style.display = 'block';
-
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
-            } catch (error) {
-                errorBox.innerText = error.message;
-                errorBox.style.display = 'block';
-                resetSubmitBtn.innerText = "Update Password";
-                resetSubmitBtn.disabled = false;
             }
         });
 
         // ==========================================
         // UI HELPERS
         // ==========================================
-        function togglePassword() {
-            const pwdInput = document.getElementById('password');
-            const toggleBtn = document.querySelector('.toggle-password');
-            
-            if (pwdInput.type === "password") {
-                pwdInput.type = "text";
-                toggleBtn.innerText = "HIDE";
-            } else {
-                pwdInput.type = "password";
-                toggleBtn.innerText = "SHOW";
-            }
+        function showError(message) {
+            errorBox.innerText = message;
+            errorBox.style.display = 'block';
+            successBox.style.display = 'none';
         }
     </script>
 </body>
