@@ -27,23 +27,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: var(--light-gray); color: var(--dark); display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- Login Overlay --- */
-        #login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--light-gray); z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .login-box {
-            background: var(--white); padding: 40px; border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px;
-            text-align: center;
-        }
-        .login-box h2 { margin-bottom: 10px; color: var(--dark); }
-        .login-box p { font-size: 13px; color: var(--gray); margin-bottom: 25px; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
-        .login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .login-box button:hover { background: #d9561a; }
-
         /* --- Sidebar Overlay for Mobile --- */
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 90; backdrop-filter: blur(2px); }
 
@@ -216,17 +199,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Strict Entry Login Overlay -->
-    <div id="login-overlay">
-        <div class="login-box">
-            <h2>Welcome to Workspace</h2>
-            <p>Please log in to continue.</p>
-            <input type="text" id="login-username" placeholder="Username (admin or staff)">
-            <input type="password" id="login-password" placeholder="Password">
-            <button onclick="handleLogin()">Log In</button>
-        </div>
-    </div>
 
     <!-- Sidebar Overlay for Mobile -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
@@ -895,52 +867,60 @@
 
     <script>
         // ==========================================
-        // Login Processing
+        // SUPABASE AUTHENTICATION & LOGIN CHECK
         // ==========================================
         let currentRole = null; 
+        let supabaseClient = null;
         
-        function handleLogin() {
-            const user = document.getElementById('login-username').value.toLowerCase().trim();
-            const pass = document.getElementById('login-password').value.trim();
+        const SUPABASE_URL = 'https://wrqkrpysvhtjenxyytfp.supabase.co'; // <-- FIXED TYPO (Removed the trailing 'L')
+        const SUPABASE_ANON_KEY = 'sb_publishable_-DXwYtZ4x8XSt1DV_sQc-w_wA7Ir0N_'; // <-- INSERT YOURS HERE
+        
+        try {
+            if(SUPABASE_URL.startsWith('http')) {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                checkAuth();
+            } else {
+                console.warn("Supabase URL not provided.");
+            }
+        } catch (err) {
+            console.error("Supabase failed to initialize. Error:", err);
+        }
 
-            if (!user) return alert("Please enter a username.");
+        async function checkAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            // If the user is NOT logged in via the OTP page, send them back to the login page
+            if (!session) {
+                window.location.href = 'index.html'; 
+                return;
+            }
 
-            if (user === 'admin') {
+            // IF LOGGED IN, INITIALIZE THE DASHBOARD
+            const email = session.user.email;
+            
+            // Basic role check based on email (adjust as needed for your staff vs admin logic)
+            if (email.includes('admin')) {
                 currentRole = 'admin';
-                document.getElementById('user-email').innerText = 'admin@iamdesigns.in';
-                document.getElementById('user-avatar').innerText = 'A';
                 document.body.classList.remove('role-staff');
-                document.getElementById('login-overlay').style.display = 'none';
-                
-                document.querySelectorAll('.view-section, .nav-btn').forEach(el => el.classList.remove('active'));
                 document.querySelector('[data-target="dashboard"]').classList.add('active');
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('page-title').innerText = "Dashboard";
                 updateDashboardStats();
-
-            } else if (user === 'staff') {
+            } else {
                 currentRole = 'staff';
-                document.getElementById('user-email').innerText = 'staff@iamdesigns.in';
-                document.getElementById('user-avatar').innerText = 'S';
                 document.body.classList.add('role-staff');
-                document.getElementById('login-overlay').style.display = 'none';
-                
-                document.querySelectorAll('.view-section, .nav-btn').forEach(el => el.classList.remove('active'));
                 document.querySelector('[data-target="payment"]').classList.add('active');
                 document.getElementById('payment').classList.add('active');
                 document.getElementById('page-title').innerText = "Payment";
-
-            } else {
-                alert('Invalid Username. For demo purposes, use "admin" or "staff".');
             }
+
+            document.getElementById('user-email').innerText = email;
+            document.getElementById('user-avatar').innerText = email.charAt(0).toUpperCase();
         }
 
         async function logout() {
-            document.getElementById('login-overlay').style.display = 'flex';
-            document.getElementById('login-username').value = '';
-            document.getElementById('login-password').value = '';
-            currentRole = null;
-            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
         }
 
         // ==========================================
@@ -1001,23 +981,6 @@
                 }
             });
         });
-
-        // ==========================================
-        // SUPABASE AUTHENTICATION (Wrapped Safely)
-        // ==========================================
-        let supabaseClient = null;
-        try {
-            const SUPABASE_URL = 'https://wrqkrpysvhtjenxyytfp.supabase.coL'; // <-- INSERT YOURS HERE
-            const SUPABASE_ANON_KEY = 'sb_publishable_-DXwYtZ4x8XSt1DV_sQc-w_wA7Ir0N_'; // <-- INSERT YOURS HERE
-            
-            if(SUPABASE_URL.startsWith('http')) {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else {
-                console.warn("Supabase URL not provided. Running UI in offline/demo mode.");
-            }
-        } catch (err) {
-            console.error("Supabase failed to initialize. Error:", err);
-        }
 
         function showToast(message) {
             const toast = document.getElementById('app-toast');
