@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - iam des!gns</title>
+    
+    <!-- Add Logo as Favicon -->
+    <link rel="icon" href="../LOGO.jpg.jpeg" type="image/jpeg">
+    
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
@@ -238,8 +242,8 @@
                 <h2 id="page-title">Dashboard</h2>
             </div>
             <div class="admin-profile">
-                <span class="avatar" id="user-avatar">?</span>
-                <div id="user-email">guest</div>
+                <span class="avatar" id="user-avatar">A</span>
+                <div id="user-email">Admin</div>
             </div>
         </header>
 
@@ -866,91 +870,38 @@
     <div id="app-toast" class="toast-notification"><span>🔔</span> <span id="toast-message">Notification message here</span></div>
 
     <script>
+        // Move appData initialization to top so functions can access it properly
+        let appData = { vendors: [], orders: {}, vendorAllotmentsHistory: [], staff: [] };
+        
         // ==========================================
-        // SUPABASE AUTHENTICATION & LOGIN CHECK
+        // FIXED LOGIC FOR LOGIN AND ROLE
         // ==========================================
         let currentRole = null; 
-        let supabaseClient = null;
         
-        const SUPABASE_URL = 'https://wrqkrpysvhtjenxyytfp.supabase.co'; // <-- FIXED TYPO (Removed the trailing 'L')
-        const SUPABASE_ANON_KEY = 'sb_publishable_-DXwYtZ4x8XSt1DV_sQc-w_wA7Ir0N_'; // <-- INSERT YOURS HERE
-        
-        try {
-            if(SUPABASE_URL.startsWith('http')) {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                checkAuth();
-            } else {
-                console.warn("Supabase URL not provided.");
-            }
-        } catch (err) {
-            console.error("Supabase failed to initialize. Error:", err);
-        }
-async function checkAuth() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
+        function checkAuth() {
+            // Force Admin login bypass as requested
+            currentRole = 'admin';
+            document.body.classList.remove('role-staff');
+
+            // Setup Profile Info
+            document.getElementById('user-email').innerText = 'Admin';
+            document.getElementById('user-avatar').innerText = 'A';
+
+            // Show Dashboard on Load
+            document.querySelector('[data-target="dashboard"]').classList.add('active');
+            document.getElementById('dashboard').classList.add('active');
+            document.getElementById('page-title').innerText = "Dashboard";
             
-            // If the user is NOT logged in via the OTP page, send them back to the login page
-            if (!session) {
-                window.location.href = 'index.html'; 
-                return;
-            }
-
-            // IF LOGGED IN, INITIALIZE THE DASHBOARD
-            const email = session.user.email;
-            
-            // STRICT ROLE CHECK BASED ON SPECIFIC EMAILS
-            if (email === 'iamdesign81@gmail.com') {
-                
-                // Set as ADMIN
-                currentRole = 'admin';
-                document.body.classList.remove('role-staff');
-                document.querySelector('[data-target="dashboard"]').classList.add('active');
-                document.getElementById('dashboard').classList.add('active');
-                document.getElementById('page-title').innerText = "Dashboard";
-                updateDashboardStats();
-
-            } else if (email === 'dhorababu6571@gmail.com') {
-                
-                // Set as STAFF
-                currentRole = 'staff';
-                document.body.classList.add('role-staff');
-                document.querySelector('[data-target="payment"]').classList.add('active');
-                document.getElementById('payment').classList.add('active');
-                document.getElementById('page-title').innerText = "Payment";
-
-            } else {
-                
-                // UNAUTHORIZED USER (Neither Admin nor Staff)
-                alert("Access Denied: Your email does not have permission to view this dashboard.");
-                logout(); // Immediately log them out
-                return;
-                
-            }
-
-            // Update the profile UI in the top right corner
-            document.getElementById('user-email').innerText = email;
-            document.getElementById('user-avatar').innerText = email.charAt(0).toUpperCase();
-        }
-                document.body.classList.remove('role-staff');
-                document.querySelector('[data-target="dashboard"]').classList.add('active');
-                document.getElementById('dashboard').classList.add('active');
-                document.getElementById('page-title').innerText = "Dashboard";
-                updateDashboardStats();
-            } else {
-                currentRole = 'staff';
-                document.body.classList.add('role-staff');
-                document.querySelector('[data-target="payment"]').classList.add('active');
-                document.getElementById('payment').classList.add('active');
-                document.getElementById('page-title').innerText = "Payment";
-            }
-
-            document.getElementById('user-email').innerText = email;
-            document.getElementById('user-avatar').innerText = email.charAt(0).toUpperCase();
+            updateDashboardStats();
         }
 
         async function logout() {
-            await supabaseClient.auth.signOut();
+            alert('Logout clicked. Sending you to login page.');
             window.location.href = 'index.html';
         }
+
+        // Initialize App Login Check On Load
+        checkAuth();
 
         // ==========================================
         // UI Navigation Safeties (Fixed Crash Issue)
@@ -964,7 +915,6 @@ async function checkAuth() {
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
 
-        let appData = { vendors: [], orders: {}, vendorAllotmentsHistory: [], staff: [] };
         let currentlySearchedOrderId = null; 
         let currentDashFilter = 'active';
         let dashSort = { col: null, asc: true };
