@@ -885,8 +885,7 @@
         } catch (err) {
             console.error("Supabase failed to initialize. Error:", err);
         }
-
-        async function checkAuth() {
+async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             
             // If the user is NOT logged in via the OTP page, send them back to the login page
@@ -898,9 +897,39 @@
             // IF LOGGED IN, INITIALIZE THE DASHBOARD
             const email = session.user.email;
             
-            // Basic role check based on email (adjust as needed for your staff vs admin logic)
-            if (email.includes('admin')) {
+            // STRICT ROLE CHECK BASED ON SPECIFIC EMAILS
+            if (email === 'iamdesign81@gmail.com') {
+                
+                // Set as ADMIN
                 currentRole = 'admin';
+                document.body.classList.remove('role-staff');
+                document.querySelector('[data-target="dashboard"]').classList.add('active');
+                document.getElementById('dashboard').classList.add('active');
+                document.getElementById('page-title').innerText = "Dashboard";
+                updateDashboardStats();
+
+            } else if (email === 'dhorababu6571@gmail.com') {
+                
+                // Set as STAFF
+                currentRole = 'staff';
+                document.body.classList.add('role-staff');
+                document.querySelector('[data-target="payment"]').classList.add('active');
+                document.getElementById('payment').classList.add('active');
+                document.getElementById('page-title').innerText = "Payment";
+
+            } else {
+                
+                // UNAUTHORIZED USER (Neither Admin nor Staff)
+                alert("Access Denied: Your email does not have permission to view this dashboard.");
+                logout(); // Immediately log them out
+                return;
+                
+            }
+
+            // Update the profile UI in the top right corner
+            document.getElementById('user-email').innerText = email;
+            document.getElementById('user-avatar').innerText = email.charAt(0).toUpperCase();
+        }
                 document.body.classList.remove('role-staff');
                 document.querySelector('[data-target="dashboard"]').classList.add('active');
                 document.getElementById('dashboard').classList.add('active');
