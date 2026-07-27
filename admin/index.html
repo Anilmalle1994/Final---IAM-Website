@@ -127,7 +127,8 @@
         async function checkActiveSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                window.location.href = 'workspace.html'; 
+                // CHANGED: Redirects to dashboard.html instead of workspace.html
+                window.location.href = 'dashboard.html'; 
             }
         }
 
@@ -212,8 +213,8 @@
 
                     if (error) throw error;
 
-                    // Success! Redirect to workspace
-                    window.location.href = 'workspace.html'; 
+                    // CHANGED: Redirect to dashboard.html instead of workspace.html
+                    window.location.href = 'dashboard.html'; 
                     
                 } catch (error) {
                     showError(error.message);
