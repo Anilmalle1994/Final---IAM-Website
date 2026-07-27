@@ -133,7 +133,7 @@
         /* Modals */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(3px); align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background-color: var(--white); margin: auto; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; }
-        .close-modal { color: var(--gray); position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .close-modal { color: var(--gray); position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.3s; z-index: 10; }
         .qr-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: var(--light-gray); border-radius: 10px; }
         .blank-slate { background: var(--light-gray); padding: 40px; text-align: center; border-radius: 10px; border: 2px dashed #ddd; color: var(--gray); }
 
@@ -256,12 +256,12 @@
                         <table class="data-table" id="dashboard-table">
                             <thead>
                                 <tr>
-                                    <th onclick="sortDashboard('orderId')">Order ID <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortDashboard('client')">Client <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortDashboard('phone')">Contact <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortDashboard('work')">Work Details <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortDashboard('balance')">Balance (₹) <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortDashboard('status')">Exact Status <span class="sort-icon">⇅</span></th>
+                                    <th>Order ID</th>
+                                    <th>Client</th>
+                                    <th>Contact</th>
+                                    <th>Work Details</th>
+                                    <th>Balance (₹)</th>
+                                    <th>Exact Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -366,7 +366,6 @@
                 </div>
             </div>
 
-            <!-- Remaining Admin Interfaces standard definitions -->
             <!-- 5. Vendor Allotment -->
             <div id="vendor-allotment" class="view-section admin-only">
                 <div class="admin-card">
@@ -428,9 +427,20 @@
             <div id="payment" class="view-section">
                 <div class="admin-card">
                     <h3>Process Payment</h3>
-                    <div class="form-grid"><div class="form-group"><label>Search Order ID</label><input type="text" id="pay-search-input"></div></div>
-                    <div class="action-row"><button type="button" class="btn-primary" onclick="searchPayment()">Search Billing</button></div>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Search Order ID</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="pay-search-input" style="flex: 1;" placeholder="Enter details or scan QR...">
+                                <button type="button" class="btn-secondary" onclick="openQRScanner('pay-search-input', searchPayment)">📷 Scan</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none;">
+                        <button type="button" class="btn-primary" onclick="searchPayment()">Search Billing</button>
+                    </div>
                 </div>
+                
                 <div class="admin-card" id="pay-result-card" style="display: none;">
                     <h3>Billing Summary</h3>
                     <p><strong>Order ID:</strong> <span id="pa-oid"></span></p>
@@ -443,8 +453,18 @@
             <div id="delivery" class="view-section">
                 <div class="admin-card">
                     <h3>Delivery Confirmation</h3>
-                    <div class="form-grid"><div class="form-group"><label>Search Order ID</label><input type="text" id="del-search-input"></div></div>
-                    <div class="action-row"><button type="button" class="btn-primary" onclick="searchDelivery()">Search</button></div>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Search Order ID</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="del-search-input" style="flex: 1;" placeholder="Enter details or scan QR...">
+                                <button type="button" class="btn-secondary" onclick="openQRScanner('del-search-input', searchDelivery)">📷 Scan</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none;">
+                        <button type="button" class="btn-primary" onclick="searchDelivery()">Search</button>
+                    </div>
                 </div>
                 <div class="admin-card" id="del-result-card" style="display: none;">
                     <p><strong>Order ID:</strong> <span id="res-oid"></span></p>
@@ -454,8 +474,34 @@
                 </div>
             </div>
             
-            <!-- Staff Pickup & Web Content Placeholders (Functionally integrated) -->
-            <div id="staff-pickup" class="view-section admin-only"><div class="admin-card"><h3>Staff Pickup Interface Active</h3></div></div>
+            <!-- Staff Pickup & Web Content Placeholders -->
+            <div id="staff-pickup" class="view-section admin-only">
+                <div class="admin-card">
+                    <h3>Staff Pickup Interface Active</h3>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Search Order ID</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="pickup-search-input" style="flex: 1;" placeholder="Enter details or scan QR...">
+                                <button type="button" class="btn-secondary" onclick="openQRScanner('pickup-search-input', searchPickup)">📷 Scan</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none;">
+                        <button type="button" class="btn-primary" onclick="searchPickup()">Search</button>
+                    </div>
+                </div>
+                <div class="admin-card" id="pickup-result-card" style="display: none;">
+                    <h3>Order Details</h3>
+                    <p><strong>Order ID:</strong> <span id="pick-oid"></span></p>
+                    <p><strong>Client:</strong> <span id="pick-client"></span></p>
+                    <p style="color: var(--primary);"><strong>Vendor Allotted:</strong> <span id="pick-vendor"></span></p>
+                    <div class="action-row">
+                        <button type="button" class="btn-whatsapp" onclick="markStaffPickupReady()">🔔 Staff Pickup Ready</button>
+                    </div>
+                </div>
+            </div>
+            
             <div id="website-content" class="view-section admin-only"><div class="admin-card"><h3>Website Content Editor Active</h3></div></div>
         </div>
     </main>
@@ -469,6 +515,21 @@
             <div class="form-group"><label>Amount Received (₹)</label><input type="number" id="pay-modal-amt"></div>
             <div class="form-group"><label>Mode</label><select id="pay-modal-mode"><option>Cash</option><option>Online</option></select></div>
             <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="submitPayment()">Submit</button>
+        </div>
+    </div>
+    
+    <!-- FIX: QR Code Scanner Modal -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="closeQRModal()">&times;</span>
+            <h3 style="margin-bottom: 15px; color: var(--dark);">Scan Ticket QR Code</h3>
+            
+            <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 12px; margin-bottom: 15px;">
+                <strong>Note:</strong> Your browser requires a secure connection (HTTPS) or localhost to access the camera. If the camera doesn't open, ensure you aren't using a plain HTTP IP address.
+            </div>
+
+            <div id="qr-reader" style="width: 100%;"></div>
+            <p style="text-align: center; color: var(--gray); font-size: 12px; margin-top: 10px;">Align the QR code within the frame to scan.</p>
         </div>
     </div>
     
@@ -532,19 +593,14 @@
             const today = new Date();
             if (today.getDate() === 1) {
                 const lastRunMonth = localStorage.getItem('iam_designs_last_report_month');
-                const currentMonth = today.getMonth().toString() + today.getFullYear().toString(); // Ensure uniqueness per year
+                const currentMonth = today.getMonth().toString() + today.getFullYear().toString(); 
                 
                 if (lastRunMonth !== currentMonth) {
                     setTimeout(() => {
                         alert("📅 MONTHLY REPORT REMINDER!\n\nIt is the 1st of the month. The system will now download your pending reports. Please attach them to the email window that will open automatically.");
-                        
-                        // Auto-generate PDFs
                         generateClientPendingPDF();
                         generateVendorPendingPDF();
-                        
-                        // Open email client
                         openEmailClient();
-                        
                         localStorage.setItem('iam_designs_last_report_month', currentMonth);
                     }, 2000); 
                 }
@@ -570,136 +626,97 @@
         // PDF & EXCEL GENERATION LOGIC
         // ==========================================
         
-        // 1. Client Pending PDF
         function generateClientPendingPDF() {
             let pendingOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0);
-            
-            let html = `
-                <div style="padding: 20px; font-family: 'Poppins', sans-serif;">
-                    <h2 style="color: #f26522; border-bottom: 2px solid #f26522; padding-bottom: 10px;">Pending Client Dues</h2>
-                    <p>Generated on: ${new Date().toLocaleDateString()}</p>
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                        <thead>
-                            <tr style="background-color: #f4f4f4; text-align: left;">
-                                <th style="padding: 10px; border: 1px solid #ddd;">Order ID</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Client Name</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Contact</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Balance Due (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-            
+            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #f26522; border-bottom: 2px solid #f26522; padding-bottom: 10px;">Pending Client Dues</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Client Name</th><th style="padding: 10px; border: 1px solid #ddd;">Contact</th><th style="padding: 10px; border: 1px solid #ddd;">Balance Due (₹)</th></tr></thead><tbody>`;
             let totalDues = 0;
-            pendingOrders.forEach(o => {
-                totalDues += parseFloat(o.balance);
-                html += `
-                    <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${o.orderId}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${o.client}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${o.phone}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: red;">₹${o.balance}</td>
-                    </tr>
-                `;
-            });
-            html += `
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="3" style="text-align: right; padding: 10px; font-weight: bold;">Grand Total Pending:</td>
-                                <td style="padding: 10px; font-weight: bold; font-size: 16px; color: red;">₹${totalDues}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
+            pendingOrders.forEach(o => { totalDues += parseFloat(o.balance); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${o.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.client}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.phone}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: red;">₹${o.balance}</td></tr>`; });
+            html += `</tbody><tfoot><tr><td colspan="3" style="text-align: right; padding: 10px; font-weight: bold;">Grand Total Pending:</td><td style="padding: 10px; font-weight: bold; font-size: 16px; color: red;">₹${totalDues}</td></tr></tfoot></table></div>`;
             
             let opt = { margin: 10, filename: `Client_Dues_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(html).save();
-            showToast("Downloading Client Dues PDF...");
         }
 
-        // 2. Vendor Pending PDF (Allotments History)
         function generateVendorPendingPDF() {
             let history = appData.vendorAllotmentsHistory || [];
-            
-            let html = `
-                <div style="padding: 20px; font-family: 'Poppins', sans-serif;">
-                    <h2 style="color: #4a238b; border-bottom: 2px solid #4a238b; padding-bottom: 10px;">Vendor Allotments History</h2>
-                    <p>Generated on: ${new Date().toLocaleDateString()}</p>
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;">
-                        <thead>
-                            <tr style="background-color: #f4f4f4; text-align: left;">
-                                <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Vendor Name</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Order ID</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Work Allotted</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Amount (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-            
+            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #4a238b; border-bottom: 2px solid #4a238b; padding-bottom: 10px;">Vendor Allotments History</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Date</th><th style="padding: 10px; border: 1px solid #ddd;">Vendor Name</th><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Work Allotted</th><th style="padding: 10px; border: 1px solid #ddd;">Amount (₹)</th></tr></thead><tbody>`;
             let totalAllotments = 0;
-            history.forEach(v => {
-                totalAllotments += parseFloat(v.amount);
-                html += `
-                    <tr>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${new Date(v.date).toLocaleDateString()}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${v.vendor}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${v.orderId}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${v.work}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${v.amount}</td>
-                    </tr>
-                `;
-            });
-            html += `
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="4" style="text-align: right; padding: 10px; font-weight: bold;">Total Allotted Amount:</td>
-                                <td style="padding: 10px; font-weight: bold; font-size: 16px;">₹${totalAllotments}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
+            history.forEach(v => { totalAllotments += parseFloat(v.amount); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${new Date(v.date).toLocaleDateString()}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.vendor}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.work}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${v.amount}</td></tr>`; });
+            html += `</tbody><tfoot><tr><td colspan="4" style="text-align: right; padding: 10px; font-weight: bold;">Total Allotted Amount:</td><td style="padding: 10px; font-weight: bold; font-size: 16px;">₹${totalAllotments}</td></tr></tfoot></table></div>`;
             
             let opt = { margin: 10, filename: `Vendor_Allotments_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(html).save();
-            showToast("Downloading Vendor PDF...");
         }
 
-        // 3. Client Excel Export
         function generateClientPendingExcel() {
-            let pendingOrders = Object.values(appData.orders)
-                .filter(o => parseFloat(o.balance) > 0)
-                .map(o => ({ "Order ID": o.orderId, "Client Name": o.client, "Contact Number": o.phone, "Pending Balance (₹)": o.balance }));
-            
+            let pendingOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0).map(o => ({ "Order ID": o.orderId, "Client Name": o.client, "Contact Number": o.phone, "Pending Balance (₹)": o.balance }));
             if (pendingOrders.length === 0) { alert("No pending client dues!"); return; }
             let worksheet = XLSX.utils.json_to_sheet(pendingOrders);
             let workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Clients");
             XLSX.writeFile(workbook, `Client_Pending_Dues_${Date.now()}.xlsx`);
-            showToast("Downloading Client Dues Excel...");
         }
 
-        // 4. Vendor Excel Export
         function generateVendorPendingExcel() {
-            let history = (appData.vendorAllotmentsHistory || []).map(v => ({
-                "Date": new Date(v.date).toLocaleDateString(),
-                "Vendor Name": v.vendor,
-                "Order ID": v.orderId,
-                "Work Allotted": v.work,
-                "Amount (₹)": v.amount
-            }));
-            
+            let history = (appData.vendorAllotmentsHistory || []).map(v => ({ "Date": new Date(v.date).toLocaleDateString(), "Vendor Name": v.vendor, "Order ID": v.orderId, "Work Allotted": v.work, "Amount (₹)": v.amount }));
             if (history.length === 0) { alert("No vendor records found!"); return; }
             let worksheet = XLSX.utils.json_to_sheet(history);
             let workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Allotments");
             XLSX.writeFile(workbook, `Vendor_Allotments_${Date.now()}.xlsx`);
-            showToast("Downloading Vendor Excel...");
+        }
+
+        // ==========================================
+        // FIX: QR SCANNER CAMERA LOGIC
+        // ==========================================
+        let html5QrcodeScanner = null;
+        let qrTargetInput = null;
+        let qrCallback = null;
+
+        function openQRScanner(inputId, callbackFunction) {
+            qrTargetInput = inputId;
+            qrCallback = callbackFunction;
+            
+            // Show the modal first so the scanner has dimensions to work with
+            document.getElementById('qrModal').style.display = 'flex';
+            
+            // Critical fix: Ensure DOM element is empty before re-initialization
+            document.getElementById('qr-reader').innerHTML = '';
+
+            // Initialize the scanner
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "qr-reader", 
+                { fps: 10, qrbox: { width: 250, height: 250 } }, 
+                /* verbose= */ false
+            );
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            document.getElementById(qrTargetInput).value = decodedText;
+            closeQRModal();
+            showToast("QR Scanned Successfully!");
+            if(qrCallback) qrCallback();
+        }
+
+        function onScanFailure(error) {
+            // We ignore failures as they happen continuously while scanning
+        }
+
+        function closeQRModal() {
+            if (html5QrcodeScanner) {
+                // Must properly clear to release the camera
+                html5QrcodeScanner.clear().then(() => {
+                    document.getElementById('qrModal').style.display = 'none';
+                    document.getElementById('qr-reader').innerHTML = '';
+                }).catch(error => {
+                    console.error("Failed to clear html5QrcodeScanner. ", error);
+                    document.getElementById('qrModal').style.display = 'none';
+                });
+            } else {
+                document.getElementById('qrModal').style.display = 'none';
+            }
         }
 
         // ==========================================
@@ -733,17 +750,20 @@
             if (filterType === 'active') filteredOrders = filteredOrders.filter(o => o.status !== 'delivered'); 
             else if (filterType === 'designing') filteredOrders = filteredOrders.filter(o => o.status === 'designing');
             else if (filterType === 'payments') filteredOrders = filteredOrders.filter(o => parseFloat(o.balance) > 0);
+            else if (filterType === 'staff_pickup') filteredOrders = filteredOrders.filter(o => o.status === 'vendor_allotted');
+            else if (filterType === 'delivery') filteredOrders = filteredOrders.filter(o => o.status === 'ready_for_delivery');
             
             filteredOrders.forEach(o => {
                 const tr = document.createElement('tr');
                 let balanceColor = parseFloat(o.balance) > 0 ? 'red' : 'green';
+                let displayStatus = o.status.replace(/_/g, ' ').toUpperCase();
                 tr.innerHTML = `
                     <td><strong>${o.orderId}</strong></td>
                     <td>${o.client}</td>
                     <td>${o.phone}</td>
                     <td>${o.work || 'N/A'}</td>
                     <td style="color: ${balanceColor}; font-weight: bold;">₹${o.balance}</td>
-                    <td><span class="status-badge status-${o.status.replace(/_/g, '-')}">${o.status}</span></td>
+                    <td><span class="status-badge status-${o.status.replace(/_/g, '-')}">${displayStatus}</span></td>
                     <td><button class="btn-primary" style="padding: 4px 8px; font-size:10px;" onclick="openPaymentModal('${o.orderId}')">Pay</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -807,6 +827,167 @@
             document.getElementById('nw-orderid').value = `IAM-ORD-${Math.floor(1000+Math.random()*9000)}`;
         }
 
+        // Vendor Allotment
+        function fetchOrderForAllotment() {
+            const orderId = document.getElementById('va-orderid').value.trim();
+            const order = findOrder(orderId);
+            if(!order) return alert("Order not found!");
+
+            const container = document.getElementById('va-rows-container');
+            container.innerHTML = ''; 
+            const workItems = order.work ? order.work.split(', ') : ["General Work"];
+
+            workItems.forEach((workItem) => {
+                const row = document.createElement('div');
+                row.className = 'form-grid va-row';
+                row.style.marginTop = '15px';
+                row.innerHTML = `<div class="form-group" style="grid-column: 1 / -1;"><label style="color: var(--primary);">Work: ${workItem}</label><input type="hidden" class="va-work-item" value="${workItem}"></div><div class="form-group"><label>Vendor Name</label><select class="va-vendor" onchange="populateMaterials(this)"><option value="">Select Vendor...</option></select></div><div class="form-group"><label>Material</label><select class="va-material" onchange="fetchRateAndCalculate(this)" disabled><option value="">Select Vendor First</option></select></div><div class="form-group"><label>Quantity</label><input type="number" class="va-qty" value="1" min="1" oninput="fetchRateAndCalculate(this)"></div><div class="form-group"><label>Amount (₹)</label><input type="number" class="va-amount" readonly></div>`;
+                container.appendChild(row);
+            });
+            
+            const vSelects = document.querySelectorAll('.va-vendor');
+            vSelects.forEach(vSelect => {
+                appData.vendors.forEach((v, index) => {
+                    let opt = document.createElement('option');
+                    opt.value = index; opt.innerText = v.name; vSelect.appendChild(opt);
+                });
+            });
+        }
+
+        function populateMaterials(selectElement) {
+            const row = selectElement.closest('.va-row');
+            const vIndex = selectElement.value;
+            const mSelect = row.querySelector('.va-material');
+            if(vIndex === "") { mSelect.disabled = true; return; }
+            mSelect.disabled = false;
+            mSelect.innerHTML = '<option value="">Select Material...</option>';
+            appData.vendors[vIndex].materials.forEach((m) => {
+                let opt = document.createElement('option');
+                opt.value = m.rate; opt.innerText = `${m.name} (₹${m.rate})`; mSelect.appendChild(opt);
+            });
+        }
+
+        function fetchRateAndCalculate(element) {
+            const row = element.closest('.va-row');
+            const rate = parseFloat(row.querySelector('.va-material').value) || 0;
+            const qty = parseFloat(row.querySelector('.va-qty').value) || 0;
+            row.querySelector('.va-amount').value = rate * qty;
+        }
+
+        function saveVendorAllotment() {
+            const orderId = document.getElementById('va-orderid').value.trim();
+            const order = appData.orders[orderId];
+            if(!order) return alert("Fetch an order first.");
+
+            let allotments = [];
+            document.querySelectorAll('.va-row').forEach(row => {
+                const vIndex = row.querySelector('.va-vendor').value;
+                if(vIndex !== "") {
+                    const vendorName = appData.vendors[vIndex].name;
+                    const amt = row.querySelector('.va-amount').value || 0;
+                    allotments.push({ workItem: row.querySelector('.va-work-item').value, vendorName, amount: amt });
+                    appData.vendorAllotmentsHistory.push({ date: new Date().toISOString(), orderId, vendor: vendorName, work: row.querySelector('.va-work-item').value, amount: amt });
+                }
+            });
+
+            order.status = 'vendor_allotted';
+            order.allotments = allotments; 
+            order.vendorName = [...new Set(allotments.map(a => a.vendorName))].join(", ");
+            saveAppData();
+            showToast("Vendor Allotted Successfully!");
+            document.getElementById('va-rows-container').innerHTML = '';
+        }
+
+        // Vendors Master
+        function addMaterialRow() {
+            const container = document.getElementById('vm-materials-container');
+            const row = document.createElement('div');
+            row.className = 'form-grid vm-material-row';
+            row.style.marginTop = '15px';
+            row.innerHTML = `<div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div><div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div>`;
+            container.appendChild(row);
+        }
+
+        function saveVendor() {
+            const vName = document.getElementById('vm-name').value.trim();
+            if(!vName) return alert("Vendor Name required!");
+            let materials = [];
+            document.querySelectorAll('.vm-material-row').forEach(row => {
+                let name = row.querySelector('.vm-mat-name').value.trim();
+                let rate = parseFloat(row.querySelector('.vm-mat-rate').value) || 0;
+                if(name && rate > 0) materials.push({ name, rate });
+            });
+            
+            if(materials.length === 0) return alert("Add at least one valid material with a rate!");
+            let existingVendor = appData.vendors.find(v => v.name.toLowerCase() === vName.toLowerCase());
+            
+            if (existingVendor) existingVendor.materials.push(...materials);
+            else appData.vendors.push({ name: vName, materials: materials });
+
+            saveAppData();
+            showToast("Vendor Configuration Saved!");
+            document.getElementById('vm-name').value = '';
+        }
+
+        function renderVendorReport() {
+            const tbody = document.querySelector('#vendor-report-table tbody');
+            tbody.innerHTML = '';
+            (appData.vendorAllotmentsHistory || []).forEach(f => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${new Date(f.date).toLocaleDateString()}</td><td><strong>${f.orderId}</strong></td><td>${f.vendor}</td><td>${f.work}</td><td style="font-weight: bold;">₹${f.amount}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Staff Master
+        function saveStaff() {
+            const name = document.getElementById('sm-name').value.trim();
+            const phone = document.getElementById('sm-phone').value.trim();
+            if(!name || phone.length !== 10) return alert("Valid name and 10-digit number required.");
+            appData.staff.push({ id: Date.now(), name, phone });
+            saveAppData();
+            document.getElementById('sm-name').value = '';
+            document.getElementById('sm-phone').value = '';
+            renderStaffTable();
+            showToast("Staff Member Saved!");
+        }
+
+        function renderStaffTable() {
+            const tbody = document.querySelector('#staff-table tbody');
+            tbody.innerHTML = '';
+            appData.staff.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><strong>${s.name}</strong></td><td>${s.phone}</td><td><button onclick="removeStaff(${s.id})" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">Delete</button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function removeStaff(id) {
+            appData.staff = appData.staff.filter(s => s.id !== id);
+            saveAppData();
+            renderStaffTable();
+        }
+
+        // Staff Pickup
+        function searchPickup() {
+            const order = findOrder(document.getElementById('pickup-search-input').value);
+            if(order) {
+                currentlySearchedOrderId = order.orderId;
+                document.getElementById('pick-oid').innerText = order.orderId;
+                document.getElementById('pick-client').innerText = order.client;
+                document.getElementById('pick-vendor').innerText = order.vendorName || 'Not Allotted';
+                document.getElementById('pickup-result-card').style.display = 'block';
+            }
+        }
+
+        function markStaffPickupReady() {
+            const order = appData.orders[currentlySearchedOrderId];
+            if(order) order.status = 'ready_for_delivery';
+            saveAppData();
+            showToast(`Pickup Ready Notification Broadcasted`);
+            updateDashboardStats();
+        }
+
         // Payments
         let currentlySearchedOrderId = null;
         function searchPayment() {
@@ -850,7 +1031,11 @@
         function sendDeliveryWhatsApp() {
             const phone = document.getElementById('res-phone').innerText;
             const msg = `Dear Customer, your order ${document.getElementById('res-oid').innerText} is ready for delivery!`;
+            const order = findOrder(document.getElementById('res-oid').innerText);
+            if(order) order.status = 'delivered';
+            saveAppData();
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            updateDashboardStats();
         }
 
         // Update dashboard on start
