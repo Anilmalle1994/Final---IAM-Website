@@ -678,7 +678,7 @@
         function logout() {
             // Clear JS accessible cookies
             document.cookie.split(";").forEach(function(c) { 
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/"); 
             });
             
             // Clear Session Storage
@@ -1218,7 +1218,6 @@
             saveAppData(); showToast("Vendor Allotted Successfully!"); document.getElementById('va-rows-container').innerHTML = '';
         }
 
-        // Vendor Master
         function addMaterialRow() {
             const container = document.getElementById('vm-materials-container');
             const row = document.createElement('div');
@@ -1227,6 +1226,7 @@
             row.innerHTML = `<div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div><div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div>`;
             container.appendChild(row);
         }
+        
         function saveVendor() {
             const vName = document.getElementById('vm-name').value.trim();
             if(!vName) return alert("Vendor Name required!");
@@ -1245,234 +1245,6 @@
             showToast("Vendor Configuration Saved!");
             document.getElementById('vm-name').value = '';
             document.getElementById('vm-materials-container').innerHTML = `<div class="form-grid vm-material-row"><div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div><div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div></div>`;
-        }
-
-        // ==========================================
-        // PENDING REPORTS & VENDOR REPORTS
-        // ==========================================
-
-        let prClientSort = { col: null, asc: true };
-        function sortPRClient(col) {
-            if(prClientSort.col === col) prClientSort.asc = !prClientSort.asc;
-            else { prClientSort.col = col; prClientSort.asc = true; }
-            renderPRClient();
-        }
-
-        function renderPRClient() {
-            const tbody = document.querySelector('#pr-client-table tbody');
-            tbody.innerHTML = '';
-            
-            let filteredOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0);
-            
-            const fId = (document.getElementById('prc-filt-id')?.value || '').toLowerCase();
-            const fClient = (document.getElementById('prc-filt-client')?.value || '').toLowerCase();
-            const fPhone = (document.getElementById('prc-filt-phone')?.value || '').toLowerCase();
-            const fBal = parseFloat(document.getElementById('prc-filt-bal')?.value);
-
-            filteredOrders = filteredOrders.filter(o => {
-                if(fId && !o.orderId.toLowerCase().includes(fId)) return false;
-                if(fClient && !o.client.toLowerCase().includes(fClient)) return false;
-                if(fPhone && !o.phone.includes(fPhone)) return false;
-                if(!isNaN(fBal) && parseFloat(o.balance) > fBal) return false;
-                return true;
-            });
-
-            if(prClientSort.col) {
-                filteredOrders.sort((a, b) => {
-                    let valA = a[prClientSort.col] || ''; let valB = b[prClientSort.col] || '';
-                    if(prClientSort.col === 'balance') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
-                    if(valA < valB) return prClientSort.asc ? -1 : 1;
-                    if(valA > valB) return prClientSort.asc ? 1 : -1;
-                    return 0;
-                });
-            }
-
-            if (filteredOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--gray);">No pending dues found.</td></tr>`;
-                return;
-            }
-
-            filteredOrders.forEach(o => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td><strong>${o.orderId}</strong></td><td>${o.client}</td><td>${o.phone}</td><td style="color: red; font-weight: bold;">₹${o.balance}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        let prVendorSort = { col: null, asc: true };
-        function sortPRVendor(col) {
-            if(prVendorSort.col === col) prVendorSort.asc = !prVendorSort.asc;
-            else { prVendorSort.col = col; prVendorSort.asc = true; }
-            renderPRVendor();
-        }
-
-        function renderPRVendor() {
-            const tbody = document.querySelector('#pr-vendor-table tbody');
-            tbody.innerHTML = '';
-            
-            let filteredHistory = [...(appData.vendorAllotmentsHistory || [])];
-            
-            const fDate = (document.getElementById('prv-filt-date')?.value || '').toLowerCase();
-            const fOrder = (document.getElementById('prv-filt-order')?.value || '').toLowerCase();
-            const fVendor = (document.getElementById('prv-filt-vendor')?.value || '').toLowerCase();
-            const fWork = (document.getElementById('prv-filt-work')?.value || '').toLowerCase();
-            const fAmt = parseFloat(document.getElementById('prv-filt-amt')?.value);
-
-            filteredHistory = filteredHistory.filter(o => {
-                if(fDate && !new Date(o.date).toLocaleDateString().includes(fDate)) return false;
-                if(fOrder && !o.orderId.toLowerCase().includes(fOrder)) return false;
-                if(fVendor && !o.vendor.toLowerCase().includes(fVendor)) return false;
-                if(fWork && !o.work.toLowerCase().includes(fWork)) return false;
-                if(!isNaN(fAmt) && parseFloat(o.amount) > fAmt) return false;
-                return true;
-            });
-
-            if(prVendorSort.col) {
-                filteredHistory.sort((a, b) => {
-                    let valA = a[prVendorSort.col] || ''; let valB = b[prVendorSort.col] || '';
-                    if(prVendorSort.col === 'amount') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
-                    if(prVendorSort.col === 'date') { valA = new Date(valA).getTime(); valB = new Date(valB).getTime(); }
-                    if(valA < valB) return prVendorSort.asc ? -1 : 1;
-                    if(valA > valB) return prVendorSort.asc ? 1 : -1;
-                    return 0;
-                });
-            }
-
-            if (filteredHistory.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--gray);">No vendor allotments found.</td></tr>`;
-                return;
-            }
-
-            filteredHistory.forEach(o => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${new Date(o.date).toLocaleDateString()}</td><td><strong>${o.orderId}</strong></td><td>${o.vendor}</td><td>${o.work}</td><td style="font-weight: bold;">₹${o.amount}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        let vrSort = { col: null, asc: true };
-        function sortVR(col) {
-            if(vrSort.col === col) vrSort.asc = !vrSort.asc;
-            else { vrSort.col = col; vrSort.asc = true; }
-            renderVendorReport();
-        }
-
-        function renderVendorReport() {
-            const tbody = document.querySelector('#vr-table tbody');
-            tbody.innerHTML = '';
-            
-            let filteredHistory = [...(appData.vendorAllotmentsHistory || [])];
-            
-            const fDate = (document.getElementById('vr-filt-date')?.value || '').toLowerCase();
-            const fOrder = (document.getElementById('vr-filt-order')?.value || '').toLowerCase();
-            const fVendor = (document.getElementById('vr-filt-vendor')?.value || '').toLowerCase();
-            const fWork = (document.getElementById('vr-filt-work')?.value || '').toLowerCase();
-            const fAmt = parseFloat(document.getElementById('vr-filt-amt')?.value);
-
-            filteredHistory = filteredHistory.filter(o => {
-                if(fDate && !new Date(o.date).toLocaleDateString().includes(fDate)) return false;
-                if(fOrder && !o.orderId.toLowerCase().includes(fOrder)) return false;
-                if(fVendor && !o.vendor.toLowerCase().includes(fVendor)) return false;
-                if(fWork && !o.work.toLowerCase().includes(fWork)) return false;
-                if(!isNaN(fAmt) && parseFloat(o.amount) > fAmt) return false;
-                return true;
-            });
-
-            if(vrSort.col) {
-                filteredHistory.sort((a, b) => {
-                    let valA = a[vrSort.col] || ''; let valB = b[vrSort.col] || '';
-                    if(vrSort.col === 'amount') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
-                    if(vrSort.col === 'date') { valA = new Date(valA).getTime(); valB = new Date(valB).getTime(); }
-                    if(valA < valB) return vrSort.asc ? -1 : 1;
-                    if(valA > valB) return vrSort.asc ? 1 : -1;
-                    return 0;
-                });
-            }
-
-            if (filteredHistory.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--gray);">No vendor allotments found.</td></tr>`;
-                return;
-            }
-
-            filteredHistory.forEach(o => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${new Date(o.date).toLocaleDateString()}</td><td><strong>${o.orderId}</strong></td><td>${o.vendor}</td><td>${o.work}</td><td style="font-weight: bold;">₹${o.amount}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Dedicated PDF/Excel Downloaders for Filtered Views
-        function getFilteredPRClient() {
-            let filteredOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0);
-            const fId = (document.getElementById('prc-filt-id')?.value || '').toLowerCase();
-            const fClient = (document.getElementById('prc-filt-client')?.value || '').toLowerCase();
-            const fPhone = (document.getElementById('prc-filt-phone')?.value || '').toLowerCase();
-            const fBal = parseFloat(document.getElementById('prc-filt-bal')?.value);
-            return filteredOrders.filter(o => {
-                if(fId && !o.orderId.toLowerCase().includes(fId)) return false;
-                if(fClient && !o.client.toLowerCase().includes(fClient)) return false;
-                if(fPhone && !o.phone.includes(fPhone)) return false;
-                if(!isNaN(fBal) && parseFloat(o.balance) > fBal) return false;
-                return true;
-            });
-        }
-        function getFilteredPRVendor(prefix) {
-            let filteredHistory = [...(appData.vendorAllotmentsHistory || [])];
-            const fDate = (document.getElementById(prefix + '-filt-date')?.value || '').toLowerCase();
-            const fOrder = (document.getElementById(prefix + '-filt-order')?.value || '').toLowerCase();
-            const fVendor = (document.getElementById(prefix + '-filt-vendor')?.value || '').toLowerCase();
-            const fWork = (document.getElementById(prefix + '-filt-work')?.value || '').toLowerCase();
-            const fAmt = parseFloat(document.getElementById(prefix + '-filt-amt')?.value);
-            return filteredHistory.filter(o => {
-                if(fDate && !new Date(o.date).toLocaleDateString().includes(fDate)) return false;
-                if(fOrder && !o.orderId.toLowerCase().includes(fOrder)) return false;
-                if(fVendor && !o.vendor.toLowerCase().includes(fVendor)) return false;
-                if(fWork && !o.work.toLowerCase().includes(fWork)) return false;
-                if(!isNaN(fAmt) && parseFloat(o.amount) > fAmt) return false;
-                return true;
-            });
-        }
-
-        function downloadPRClientPDF() {
-            let pendingOrders = getFilteredPRClient();
-            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #f26522; border-bottom: 2px solid #f26522; padding-bottom: 10px;">Filtered Client Dues</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Client Name</th><th style="padding: 10px; border: 1px solid #ddd;">Contact</th><th style="padding: 10px; border: 1px solid #ddd;">Balance Due (₹)</th></tr></thead><tbody>`;
-            let totalDues = 0;
-            pendingOrders.forEach(o => { totalDues += parseFloat(o.balance); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${o.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.client}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.phone}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: red;">₹${o.balance}</td></tr>`; });
-            html += `</tbody><tfoot><tr><td colspan="3" style="text-align: right; padding: 10px; font-weight: bold;">Filtered Grand Total:</td><td style="padding: 10px; font-weight: bold; font-size: 16px; color: red;">₹${totalDues}</td></tr></tfoot></table></div>`;
-            html2pdf().set({ margin: 10, filename: `Filtered_Client_Dues_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
-        }
-        function downloadPRClientExcel() {
-            let pendingOrders = getFilteredPRClient().map(o => ({ "Order ID": o.orderId, "Client Name": o.client, "Contact Number": o.phone, "Pending Balance (₹)": o.balance }));
-            if (pendingOrders.length === 0) return alert("No pending client dues!");
-            let worksheet = XLSX.utils.json_to_sheet(pendingOrders); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Client Dues"); XLSX.writeFile(workbook, `Filtered_Client_Dues_${Date.now()}.xlsx`);
-        }
-
-        function downloadPRVendorPDF() {
-            let history = getFilteredPRVendor('prv');
-            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #4a238b; border-bottom: 2px solid #4a238b; padding-bottom: 10px;">Filtered Vendor Allotments</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Date</th><th style="padding: 10px; border: 1px solid #ddd;">Vendor Name</th><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Work Allotted</th><th style="padding: 10px; border: 1px solid #ddd;">Amount (₹)</th></tr></thead><tbody>`;
-            let totalAllotments = 0;
-            history.forEach(v => { totalAllotments += parseFloat(v.amount); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${new Date(v.date).toLocaleDateString()}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.vendor}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.work}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${v.amount}</td></tr>`; });
-            html += `</tbody><tfoot><tr><td colspan="4" style="text-align: right; padding: 10px; font-weight: bold;">Filtered Total Amount:</td><td style="padding: 10px; font-weight: bold; font-size: 16px;">₹${totalAllotments}</td></tr></tfoot></table></div>`;
-            html2pdf().set({ margin: 10, filename: `Filtered_Vendor_Allotments_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
-        }
-        function downloadPRVendorExcel() {
-            let history = getFilteredPRVendor('prv').map(v => ({ "Date": new Date(v.date).toLocaleDateString(), "Vendor Name": v.vendor, "Order ID": v.orderId, "Work Allotted": v.work, "Amount (₹)": v.amount }));
-            if (history.length === 0) return alert("No vendor records found!");
-            let worksheet = XLSX.utils.json_to_sheet(history); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Allotments"); XLSX.writeFile(workbook, `Filtered_Vendor_Allotments_${Date.now()}.xlsx`);
-        }
-
-        function downloadVRPDF() {
-            let history = getFilteredPRVendor('vr');
-            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #4a238b; border-bottom: 2px solid #4a238b; padding-bottom: 10px;">Filtered Vendor Reports</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Date</th><th style="padding: 10px; border: 1px solid #ddd;">Vendor Name</th><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Work Allotted</th><th style="padding: 10px; border: 1px solid #ddd;">Amount (₹)</th></tr></thead><tbody>`;
-            let totalAllotments = 0;
-            history.forEach(v => { totalAllotments += parseFloat(v.amount); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${new Date(v.date).toLocaleDateString()}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.vendor}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.work}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${v.amount}</td></tr>`; });
-            html += `</tbody><tfoot><tr><td colspan="4" style="text-align: right; padding: 10px; font-weight: bold;">Filtered Total Amount:</td><td style="padding: 10px; font-weight: bold; font-size: 16px;">₹${totalAllotments}</td></tr></tfoot></table></div>`;
-            html2pdf().set({ margin: 10, filename: `Vendor_Reports_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
-        }
-        function downloadVRExcel() {
-            let history = getFilteredPRVendor('vr').map(v => ({ "Date": new Date(v.date).toLocaleDateString(), "Vendor Name": v.vendor, "Order ID": v.orderId, "Work Allotted": v.work, "Amount (₹)": v.amount }));
-            if (history.length === 0) return alert("No vendor records found!");
-            let worksheet = XLSX.utils.json_to_sheet(history); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Reports"); XLSX.writeFile(workbook, `Vendor_Reports_${Date.now()}.xlsx`);
         }
 
         // ==========================================
