@@ -113,9 +113,38 @@
 
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(3px); align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background-color: var(--white); padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
-        .close-modal { color: var(--gray); position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-modal { color: var(--gray); position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; z-index: 10;}
         .qr-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: var(--light-gray); border-radius: 10px; }
         
+        /* INTEGRATED BILL GENERATOR CSS */
+        #billModal .modal-content { max-width: 230mm; background: #eef1f5; padding: 20px; overflow-y: auto; max-height: 95vh; }
+        .bill-container { width: 210mm; min-height: 297mm; background: #ffffff; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0 auto; font-family: 'Montserrat', sans-serif; position: relative;}
+        .bill-header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .bill-to-box { background-color: #edf1f5; border-left: 4px solid #ff6600; padding: 15px; width: 50%; min-height: 110px; border-radius: 2px; }
+        .bill-to-box h3 { font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 700; border: none; padding: 0;}
+        .bill-to-box textarea { width: 100%; background: transparent; border: none; resize: none; font-size: 13px; font-weight: 600; color: #555; line-height: 1.4; outline: none; height: 70px; font-family: inherit;}
+        .logo-meta-container { display: flex; flex-direction: column; align-items: flex-end; width: 35%; }
+        .logo-meta-container .logo { width: 140px; height: auto; margin-bottom: 12px; }
+        .meta-info { text-align: left; width: 150px; }
+        .meta-field { display: flex; align-items: center; font-size: 13px; font-weight: 700; color: #ff6600; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .meta-field input { border: none; background: transparent; font-size: 13px; font-weight: 700; color: #ff6600; width: 90px; outline: none; font-family: inherit;}
+        .bill-table-section { width: 100%; margin-bottom: 20px; }
+        .bill-table-section table { width: 100%; border-collapse: collapse; }
+        .bill-table-section th { background-color: #55606e; color: #ffffff; font-size: 13px; font-weight: 700; text-align: left; padding: 10px 12px; }
+        .bill-table-section th.center, .bill-table-section td.center { text-align: center; }
+        .bill-table-section th.right, .bill-table-section td.right { text-align: right; }
+        .bill-table-section td { background-color: #edf1f5; border-bottom: 2px solid #ffffff; padding: 6px 12px; font-size: 13px; color: #333; height: 40px; }
+        .bill-table-section td input { width: 100%; background: transparent; border: none; outline: none; font-size: 13px; font-weight: 600; color: #333; font-family: inherit; }
+        .bill-controls-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .bill-grand-total { font-size: 15px; font-weight: 700; color: #333; }
+        .signature-section { display: flex; justify-content: flex-end; margin-bottom: 30px; }
+        .signature-box { text-align: center; width: 180px; }
+        .signature-name { font-size: 15px; font-weight: 700; color: #222; }
+        .signature-name span { color: #ff6600; }
+        .bill-footer-section { border-top: 1px solid #e1e4e8; padding-top: 15px; display: flex; flex-direction: column; gap: 6px; }
+        .bill-footer-item { display: flex; align-items: center; font-size: 12px; color: #333; font-weight: 600; }
+        .bill-footer-item span.icon { color: #ff6600; margin-right: 8px; font-size: 13px; width: 14px; text-align: center; }
+
         @media (max-width: 992px) { .form-grid { grid-template-columns: 1fr; } .action-row button { max-width: 100%; } }
         @media (max-width: 768px) {
             .menu-toggle, .sidebar-close-btn { display: block; }
@@ -530,7 +559,6 @@
             <p><strong>Order ID:</strong> <span id="modal-order-id"></span></p>
             <div class="form-group">
                 <label>Amount Received (₹)</label>
-                <!-- Cap the input visually as well -->
                 <input type="number" id="pay-modal-amt" oninput="if(parseFloat(this.value) > parseFloat(this.max)) this.value = this.max;">
             </div>
             <div class="form-group"><label>Mode</label><select id="pay-modal-mode"><option>Cash</option><option>Online</option></select></div>
@@ -548,6 +576,62 @@
             <div id="qr-reader" style="width: 100%;"></div>
         </div>
     </div>
+
+    <!-- Bill Generator Modal -->
+    <div id="billModal" class="modal">
+        <div class="modal-content" style="max-width: 250mm; padding: 15px; background: #eef1f5;">
+            <span class="close-modal" onclick="document.getElementById('billModal').style.display='none'">&times;</span>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: var(--dark);">Generate Final Bill</h3>
+                <button class="btn-whatsapp" onclick="downloadBillAndWhatsApp()">📄 Save PDF & Send WhatsApp</button>
+            </div>
+
+            <div id="bill-render-area" class="bill-container">
+                <div>
+                    <div class="bill-header-section">
+                        <div class="bill-to-box">
+                            <h3>Bill to</h3>
+                            <textarea id="bill-client-info">Client Name Here&#13;&#10;Phone: 0000000000</textarea>
+                        </div>
+                        <div class="logo-meta-container">
+                            <img src="../LOGO.jpg.jpeg" alt="iam designs logo" class="logo" onerror="this.src='https://via.placeholder.com/140x50?text=iam+designs'">
+                            <div class="meta-info">
+                                <div class="meta-field">BILL :&nbsp;<input type="text" id="billNo" value="#101"></div>
+                                <div class="meta-field">DATE :&nbsp;<input type="text" id="billDate"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bill-table-section">
+                        <table id="billTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 45%;">Description</th>
+                                    <th class="center" style="width: 15%;">Size</th>
+                                    <th class="center" style="width: 15%;">Copies</th>
+                                    <th class="right" style="width: 20%;">Total (₹)</th>
+                                    <th style="width: 5%;" class="print-hide"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="billTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="bill-controls-section" id="bill-controls-section">
+                        <button type="button" class="btn-primary" style="background-color: #ff6600;" onclick="addBillRow()">+ Add Row</button>
+                        <div class="bill-grand-total">Grand Total: ₹ <span id="billGrandTotal">0.00</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="signature-section"><div class="signature-box"><div class="signature-name">Anil <span>Malle</span></div></div></div>
+                    <div class="bill-footer-section">
+                        <div class="bill-footer-item"><span class="icon">🏠</span> Shop No. F-4,5, Majestic Complex, Cinema Road, KAKINADA.</div>
+                        <div class="bill-footer-item"><span class="icon">📞</span> +91 92999 99564</div>
+                        <div class="bill-footer-item"><span class="icon">✉️</span> iamdesign81@gmail.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div id="app-toast" class="toast-notification"><span>🔔</span> <span id="toast-message"></span></div>
 
@@ -557,7 +641,6 @@
         // PREVENT BACK BUTTON & AUTO-LOGOUT LOGIC
         // ==========================================
         
-        // Immediately check if this was a page refresh
         window.addEventListener('load', function() {
             const navEntries = performance.getEntriesByType("navigation");
             if (navEntries.length > 0 && navEntries[0].type === "reload") {
@@ -565,13 +648,11 @@
             }
         });
 
-        // Prevent Back Button - Redirect to Login immediately
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function() {
             window.location.replace("https://www.anilmalle.in/admin/");
         };
 
-        // Auto Logout after 5 mins inactivity
         let inactivityTimer;
         const INACTIVITY_LIMIT = 5 * 60 * 1000; 
 
@@ -624,7 +705,6 @@
         document.getElementById('sidebar-close-btn').addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
 
-        // Submenu Toggle
         document.getElementById('settings-menu-toggle').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('settings-submenu').classList.toggle('open');
@@ -632,7 +712,6 @@
 
         navBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                // If it's the settings toggle itself, don't change views
                 if(btn.id === 'settings-menu-toggle') return;
                 
                 e.preventDefault();
@@ -642,7 +721,6 @@
                 const targetId = btn.getAttribute('data-target');
                 btn.classList.add('active');
                 
-                // If a submenu item is clicked, keep the Settings parent highlighted
                 if(btn.closest('.submenu')) {
                     document.getElementById('settings-menu-toggle').classList.add('active');
                 }
@@ -665,9 +743,6 @@
             setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
 
-        // ==========================================
-        // NEW ORDER ID GENERATOR
-        // ==========================================
         function generateOrderId() {
             const now = new Date();
             const year = now.getFullYear();
@@ -1011,7 +1086,10 @@
                 let type = row.querySelector('.nw-work-type').value;
                 if(type === 'Others') type = row.querySelector('.nw-work-others-input').value.trim() || 'Other Work';
                 const desc = row.querySelector('.nw-work-desc').value.trim();
-                workTypesArray.push(desc ? `${type} (${desc})` : type);
+                
+                // Use only description for WhatsApp as requested. If blank, fallback to type so it's not totally empty.
+                let finalWorkString = desc ? desc : type;
+                workTypesArray.push(finalWorkString);
 
                 const fileInput = row.querySelector('.nw-work-file');
                 if(fileInput && fileInput.files.length > 0) {
@@ -1029,7 +1107,6 @@
             };
             saveAppData();
             
-            // Extract QR code for auto-download
             const qrCanvas = document.querySelector('#qrcode canvas');
             let qrDataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : null;
 
@@ -1205,7 +1282,7 @@
         }
 
         // ==========================================
-        // PAYMENTS & DELIVERY
+        // PAYMENTS & BILL GENERATOR
         // ==========================================
         function searchPayment() {
             const order = findOrder(document.getElementById('pay-search-input').value);
@@ -1259,9 +1336,88 @@
                 closePaymentModal(); 
                 searchPayment(); 
                 updateDashboardStats();
+
+                if(parseFloat(order.balance) <= 0) {
+                    openBillGenerator(order);
+                }
             }
         }
 
+        // --- Bill Logic ---
+        function openBillGenerator(order) {
+            document.getElementById('billModal').style.display = 'flex';
+            document.getElementById('bill-client-info').value = `${order.client}\nPhone: ${order.phone}`;
+            document.getElementById('billNo').value = order.orderId;
+            const today = new Date();
+            document.getElementById('billDate').value = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
+            const tbody = document.getElementById('billTableBody');
+            tbody.innerHTML = '';
+            
+            const workItems = order.work ? order.work.split(', ') : ["General Print Work"];
+            let roughSplitAmt = (parseFloat(order.amount) / workItems.length).toFixed(2);
+
+            workItems.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><input type="text" value="${item}"></td><td><input type="text" class="center" placeholder="Size"></td><td><input type="number" class="center copies" value="1" oninput="calculateBillTotal()"></td><td><input type="number" class="right total-field" value="${roughSplitAmt}" oninput="calculateBillTotal()"></td><td class="center print-hide"><button type="button" onclick="removeBillRow(this)" style="background:none;border:none;color:red;cursor:pointer;font-weight:bold;">&times;</button></td>`;
+                tbody.appendChild(tr);
+            });
+            calculateBillTotal();
+        }
+
+        function addBillRow() {
+            const tbody = document.getElementById('billTableBody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><input type="text" placeholder="Item description"></td><td><input type="text" class="center" placeholder="Size"></td><td><input type="number" class="center copies" placeholder="0" oninput="calculateBillTotal()"></td><td><input type="number" class="right total-field" placeholder="0.00" oninput="calculateBillTotal()"></td><td class="center print-hide"><button type="button" onclick="removeBillRow(this)" style="background:none;border:none;color:red;cursor:pointer;font-weight:bold;">&times;</button></td>`;
+            tbody.appendChild(tr);
+        }
+
+        function removeBillRow(btn) {
+            const row = btn.parentNode.parentNode;
+            if(document.getElementById('billTableBody').rows.length > 1) {
+                row.parentNode.removeChild(row);
+                calculateBillTotal();
+            }
+        }
+
+        function calculateBillTotal() {
+            const totalFields = document.querySelectorAll('#billTableBody .total-field');
+            let grandTotal = 0;
+            totalFields.forEach(field => {
+                const val = parseFloat(field.value);
+                if (!isNaN(val)) grandTotal += val;
+            });
+            document.getElementById('billGrandTotal').innerText = grandTotal.toFixed(2);
+        }
+
+        function downloadBillAndWhatsApp() {
+            const element = document.getElementById('bill-render-area');
+            const orderId = document.getElementById('billNo').value;
+            const clientInfo = document.getElementById('bill-client-info').value;
+            const phoneMatch = clientInfo.match(/Phone:\s*(\d{10})/);
+            const phone = phoneMatch ? phoneMatch[1] : '';
+
+            const opt = { margin: 0, filename: `Bill_${orderId}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+
+            document.getElementById('bill-controls-section').style.display = 'none';
+            const hideTds = document.querySelectorAll('.print-hide');
+            hideTds.forEach(td => td.style.display = 'none');
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.getElementById('bill-controls-section').style.display = 'flex';
+                hideTds.forEach(td => td.style.display = '');
+
+                if(phone) {
+                    const msg = `Dear Customer,\nYour payment for Order ${orderId} is complete.\nWe have generated your final bill. Please find the attached document.\nThank you for choosing us!`;
+                    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                }
+                document.getElementById('billModal').style.display = 'none';
+            });
+        }
+
+        // ==========================================
+        // DELIVERY
+        // ==========================================
         function searchDelivery() {
             const order = findOrder(document.getElementById('del-search-input').value);
             if(order) {
