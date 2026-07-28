@@ -467,6 +467,34 @@
     <!-- Script Block -->
     <script>
         // ==========================================
+        // INACTIVITY AUTO-LOGOUT LOGIC
+        // ==========================================
+        let inactivityTimer;
+        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+        function resetTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(logout, INACTIVITY_LIMIT);
+        }
+
+        // Attach event listeners for user activity
+        window.onload = function() {
+            resetTimer();
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+            document.onmousedown = resetTimer; 
+            document.ontouchstart = resetTimer;
+            document.onclick = resetTimer;
+            document.onscroll = resetTimer;
+        };
+
+        function logout() {
+            // Replaces current history state so the user can't click 'Back' to return to dashboard
+            alert('Session logged out.');
+            window.location.replace('index.html'); // Ensure your login page is named index.html
+        }
+
+        // ==========================================
         // DATA STORAGE & INIT
         // ==========================================
         let appData = { vendors: [], orders: {}, vendorAllotmentsHistory: [], staff: [] };
@@ -661,7 +689,6 @@
             document.getElementById('dashboard-list-container').style.display = 'none';
             document.getElementById('dashboard-welcome').style.display = 'block';
         }
-        function logout() { window.location.href = 'index.html'; }
 
         // Designing
         function saveDesignRequest() {
@@ -733,14 +760,11 @@
             };
             saveAppData();
             
-            // Trigger WhatsApp Opening
             let msg = `Hello ${client},\nYour order ${orderId} has been successfully placed with iam des!gns.\n\nWork: ${appData.orders[orderId].work}\nTotal Amount: ₹${appData.orders[orderId].amount}\nPaid: ₹${appData.orders[orderId].advance}\nBalance Due: ₹${appData.orders[orderId].balance}\n\nWe will notify you when it is ready!`;
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
 
             showToast("Order saved successfully.");
             document.getElementById('new-order-form').reset();
-            
-            // Reset works container to default 1 row
             document.getElementById('nw-works-container').innerHTML = `<div class="form-grid nw-work-row"><div class="form-group"><label>Work Type</label><select class="nw-work-type" onchange="handleWorkTypeChange(this)"><option value="Flex">Flex</option><option value="Digital Printing">Digital Printing</option><option value="Offset Printing">Offset Printing</option><option value="Special Work">Special Work</option><option value="Others">Others</option></select><input type="text" class="nw-work-others-input" placeholder="Type custom work..." style="display: none; margin-top: 8px;"></div><div class="form-group"><label>Description / Details</label><input type="text" class="nw-work-desc" placeholder="e.g. Dimensions or extra details"></div></div>`;
             
             initNewOrder();
@@ -805,7 +829,7 @@
             saveAppData(); showToast("Vendor Allotted Successfully!"); document.getElementById('va-rows-container').innerHTML = '';
         }
 
-        // Vendor Master Fixes
+        // Vendor Master
         function addMaterialRow() {
             const container = document.getElementById('vm-materials-container');
             const row = document.createElement('div');
@@ -830,8 +854,6 @@
 
             saveAppData();
             showToast("Vendor Configuration Saved!");
-            
-            // Fix: Clear the Vendor form entirely
             document.getElementById('vm-name').value = '';
             document.getElementById('vm-materials-container').innerHTML = `<div class="form-grid vm-material-row"><div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div><div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div></div>`;
         }
@@ -880,14 +902,12 @@
             }
         }
         
-        // FIX: Staff Pickup WhatsApp Feature
         function markStaffPickupReady() {
             const order = appData.orders[currentlySearchedOrderId];
             if(!order) return;
             order.status = 'ready_for_delivery';
             saveAppData();
             
-            // Format WhatsApp Message
             let msg = `Hello Team,\n\nPlease pick up the following order:\n*Order ID:* ${order.orderId}\n*Vendor Name:* ${order.vendorName || 'Not Listed'}\n*Work Details:* ${order.work}\n\nThank you!`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
             
