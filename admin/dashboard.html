@@ -28,10 +28,19 @@
         .sidebar-header img { height: 45px; border-radius: 5px; margin-bottom: 10px; }
         .sidebar-header h3 { font-size: 14px; color: var(--gray); font-weight: 600; }
         .sidebar-close-btn { display: none; position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: var(--gray); }
+        
         .sidebar-menu { list-style: none; padding: 20px 0; flex: 1; overflow-y: auto; }
         .sidebar-menu li { padding: 5px 20px; }
-        .sidebar-menu a { display: flex; align-items: center; gap: 15px; padding: 12px 20px; color: var(--gray); text-decoration: none; font-size: 15px; font-weight: 600; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar-menu a { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; color: var(--gray); text-decoration: none; font-size: 15px; font-weight: 600; border-radius: 8px; transition: all 0.3s ease; }
         .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(242, 101, 34, 0.1); color: var(--primary); }
+        .sidebar-menu a span.nav-text { display: flex; align-items: center; gap: 15px; }
+        
+        /* Submenu Styling */
+        .submenu { list-style: none; padding-top: 5px; display: none; }
+        .submenu.open { display: block; }
+        .submenu li { padding: 2px 10px 2px 30px; }
+        .submenu a { font-size: 13.5px; padding: 10px 15px; background: #fafafa; }
+        
         .sidebar-footer { padding: 20px; border-top: 1px solid #eaeaea; }
         .logout-btn { width: 100%; padding: 12px; border: none; background: #ffebe6; color: var(--primary); font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 15px; }
         .logout-btn:hover { background: var(--primary); color: var(--white); }
@@ -132,18 +141,25 @@
             <h3>Workspace</h3>
         </div>
         <ul class="sidebar-menu">
-            <li class="admin-only"><a href="#" class="nav-btn active" data-target="dashboard">📊 Dashboard</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="pending-reports">📑 Pending Reports</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="designing">✒️ Designing</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="new-order">📝 New Work Order</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="vendor-allotment">🤝 Vendor Allotment</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="vendors-master">🏢 Vendors Master</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="vendor-reports">📈 Vendor Reports</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="staff-master">👥 Staff Master</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="staff-pickup">🚚 Staff Pickup</a></li>
-            <li class="admin-only"><a href="#" class="nav-btn" data-target="website-content">🌐 Website Content</a></li>
-            <li><a href="#" class="nav-btn" data-target="payment">💰 Payment</a></li>
-            <li><a href="#" class="nav-btn" data-target="delivery">📦 Delivery</a></li>
+            <li class="admin-only"><a href="#" class="nav-btn active" data-target="dashboard"><span class="nav-text">📊 Dashboard</span></a></li>
+            <li class="admin-only"><a href="#" class="nav-btn" data-target="designing"><span class="nav-text">✒️ Designing</span></a></li>
+            <li class="admin-only"><a href="#" class="nav-btn" data-target="new-order"><span class="nav-text">📝 New Work Order</span></a></li>
+            <li class="admin-only"><a href="#" class="nav-btn" data-target="vendor-allotment"><span class="nav-text">🤝 Vendor Allotment</span></a></li>
+            <li class="admin-only"><a href="#" class="nav-btn" data-target="staff-pickup"><span class="nav-text">🚚 Staff Pickup</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="payment"><span class="nav-text">💰 Payment</span></a></li>
+            <li><a href="#" class="nav-btn" data-target="delivery"><span class="nav-text">📦 Delivery</span></a></li>
+            
+            <!-- Settings Submenu -->
+            <li class="admin-only">
+                <a href="#" id="settings-menu-toggle"><span class="nav-text">⚙️ Settings</span> <span style="font-size: 10px;">▼</span></a>
+                <ul class="submenu" id="settings-submenu">
+                    <li><a href="#" class="nav-btn" data-target="vendors-master"><span class="nav-text">🏢 Vendors Master</span></a></li>
+                    <li><a href="#" class="nav-btn" data-target="staff-master"><span class="nav-text">👥 Staff Master</span></a></li>
+                    <li><a href="#" class="nav-btn" data-target="website-content"><span class="nav-text">🌐 Web Content</span></a></li>
+                    <li><a href="#" class="nav-btn" data-target="pending-reports"><span class="nav-text">📑 Pending Reports</span></a></li>
+                    <li><a href="#" class="nav-btn" data-target="vendor-reports"><span class="nav-text">📈 Vendor Reports</span></a></li>
+                </ul>
+            </li>
         </ul>
         <div class="sidebar-footer">
             <button class="logout-btn" onclick="logout()">Log Out</button>
@@ -193,27 +209,6 @@
                 </div>
             </div>
 
-            <!-- Pending Reports -->
-            <div id="pending-reports" class="view-section admin-only">
-                <div class="admin-card">
-                    <h3>Generate Outstanding Reports</h3>
-                    <p style="font-size: 13px; color: var(--gray); margin-bottom: 20px;">Download formatted reports of all pending vendor payments and client balances.</p>
-                    <div class="form-grid" style="margin-bottom: 20px;">
-                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
-                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Client Dues</label>
-                            <button type="button" class="btn-primary" onclick="generateClientPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
-                            <button type="button" class="btn-excel" onclick="generateClientPendingExcel()">📊 Download Excel</button>
-                        </div>
-                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
-                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Vendor Allotments</label>
-                            <button type="button" class="btn-primary" onclick="generateVendorPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
-                            <button type="button" class="btn-excel" onclick="generateVendorPendingExcel()">📊 Download Excel</button>
-                        </div>
-                    </div>
-                    <div class="action-row" style="justify-content: flex-start;"><button class="btn-secondary" onclick="openEmailClient()">✉️ Compose Email to Admin</button></div>
-                </div>
-            </div>
-
             <!-- Designing View -->
             <div id="designing" class="view-section admin-only">
                 <div class="admin-card">
@@ -246,7 +241,9 @@
                             <div class="form-group"><label>Order ID</label><input type="text" id="nw-orderid" readonly></div>
                             <div class="form-group"><label>Client Name</label><input type="text" id="nw-client" required></div>
                             <div class="form-group"><label>Contact</label><input type="tel" id="nw-phone" maxlength="10" required></div>
+                            <div class="form-group"><label>Upload Final Design (Optional)</label><input type="file" id="nw-final-design" accept="image/*" style="background: white;"></div>
                         </div>
+                        
                         <div id="nw-works-container" style="margin-top: 15px;">
                             <div class="form-grid nw-work-row">
                                 <div class="form-group">
@@ -288,48 +285,28 @@
                 </div>
             </div>
 
-            <!-- Vendors Master -->
-            <div id="vendors-master" class="view-section admin-only">
+            <!-- Staff Pickup -->
+            <div id="staff-pickup" class="view-section admin-only">
                 <div class="admin-card">
-                    <h3>Add New Vendor & Materials</h3>
-                    <div class="form-grid"><div class="form-group"><label>Vendor Name</label><input type="text" id="vm-name"></div></div>
-                    <div id="vm-materials-container">
-                        <div class="form-grid vm-material-row">
-                            <div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div>
-                            <div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div>
+                    <h3>Staff Pickup Operations</h3>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Search Order ID</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="pickup-search-input" style="flex: 1;" placeholder="Enter details or scan QR...">
+                                <button type="button" class="btn-secondary" onclick="openQRScanner('pickup-search-input', searchPickup)">📷 Scan</button>
+                            </div>
                         </div>
                     </div>
-                    <button type="button" class="add-row-btn" onclick="addMaterialRow()">+ Add Another Material</button>
-                    <div class="action-row"><button type="button" class="btn-primary" onclick="saveVendor()">Save Configuration</button></div>
+                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none;"><button type="button" class="btn-primary" onclick="searchPickup()">Search</button></div>
                 </div>
-            </div>
-
-            <!-- Vendor Reports -->
-            <div id="vendor-reports" class="view-section admin-only">
-                <div class="admin-card">
-                    <h3>Vendor Allotment Reports</h3>
-                    <button type="button" class="btn-primary" onclick="renderVendorReport()">Refresh Report List</button>
-                    <div class="table-responsive-wrapper" style="margin-top: 20px;">
-                        <table class="data-table" id="vendor-report-table">
-                            <thead><tr><th>Date</th><th>Order ID</th><th>Vendor</th><th>Work Item</th><th>Allotment Amt (₹)</th></tr></thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Staff Master -->
-            <div id="staff-master" class="view-section admin-only">
-                <div class="admin-card">
-                    <h3>Add New Staff Member</h3>
-                    <div class="form-grid">
-                        <div class="form-group"><label>Staff Name</label><input type="text" id="sm-name"></div>
-                        <div class="form-group"><label>WhatsApp Number</label><input type="tel" id="sm-phone" maxlength="10"></div>
-                    </div>
-                    <div class="action-row"><button type="button" class="btn-primary" onclick="saveStaff()">Save Staff Member</button></div>
-                </div>
-                <div class="admin-card">
-                    <table class="data-table" id="staff-table"><thead><tr><th>Name</th><th>Phone</th><th>Action</th></tr></thead><tbody></tbody></table>
+                <div class="admin-card" id="pickup-result-card" style="display: none;">
+                    <h3>Order Details</h3>
+                    <p><strong>Order ID:</strong> <span id="pick-oid"></span></p>
+                    <p><strong>Client:</strong> <span id="pick-client"></span></p>
+                    <p><strong>Work Type:</strong> <span id="pick-work"></span></p>
+                    <p style="color: var(--primary);"><strong>Vendor Allotted:</strong> <span id="pick-vendor"></span></p>
+                    <div class="action-row"><button type="button" class="btn-whatsapp" onclick="markStaffPickupReady()">🔔 Message Staff via WhatsApp</button></div>
                 </div>
             </div>
 
@@ -380,31 +357,39 @@
                 </div>
             </div>
             
-            <!-- Staff Pickup -->
-            <div id="staff-pickup" class="view-section admin-only">
+            <!-- ====== SETTINGS SUB-VIEWS ====== -->
+
+            <!-- Vendors Master -->
+            <div id="vendors-master" class="view-section admin-only">
                 <div class="admin-card">
-                    <h3>Staff Pickup Operations</h3>
-                    <div class="form-grid">
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>Search Order ID</label>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="pickup-search-input" style="flex: 1;" placeholder="Enter details or scan QR...">
-                                <button type="button" class="btn-secondary" onclick="openQRScanner('pickup-search-input', searchPickup)">📷 Scan</button>
-                            </div>
+                    <h3>Add New Vendor & Materials</h3>
+                    <div class="form-grid"><div class="form-group"><label>Vendor Name</label><input type="text" id="vm-name"></div></div>
+                    <div id="vm-materials-container">
+                        <div class="form-grid vm-material-row">
+                            <div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div>
+                            <div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div>
                         </div>
                     </div>
-                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none;"><button type="button" class="btn-primary" onclick="searchPickup()">Search</button></div>
-                </div>
-                <div class="admin-card" id="pickup-result-card" style="display: none;">
-                    <h3>Order Details</h3>
-                    <p><strong>Order ID:</strong> <span id="pick-oid"></span></p>
-                    <p><strong>Client:</strong> <span id="pick-client"></span></p>
-                    <p><strong>Work Type:</strong> <span id="pick-work"></span></p>
-                    <p style="color: var(--primary);"><strong>Vendor Allotted:</strong> <span id="pick-vendor"></span></p>
-                    <div class="action-row"><button type="button" class="btn-whatsapp" onclick="markStaffPickupReady()">🔔 Message Staff via WhatsApp</button></div>
+                    <button type="button" class="add-row-btn" onclick="addMaterialRow()">+ Add Another Material</button>
+                    <div class="action-row"><button type="button" class="btn-primary" onclick="saveVendor()">Save Configuration</button></div>
                 </div>
             </div>
-            
+
+            <!-- Staff Master -->
+            <div id="staff-master" class="view-section admin-only">
+                <div class="admin-card">
+                    <h3>Add New Staff Member</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Staff Name</label><input type="text" id="sm-name"></div>
+                        <div class="form-group"><label>WhatsApp Number</label><input type="tel" id="sm-phone" maxlength="10"></div>
+                    </div>
+                    <div class="action-row"><button type="button" class="btn-primary" onclick="saveStaff()">Save Staff Member</button></div>
+                </div>
+                <div class="admin-card">
+                    <table class="data-table" id="staff-table"><thead><tr><th>Name</th><th>Phone</th><th>Action</th></tr></thead><tbody></tbody></table>
+                </div>
+            </div>
+
             <!-- Website Content -->
             <div id="website-content" class="view-section admin-only">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
@@ -432,6 +417,41 @@
                             </div>
                             <button type="submit" class="submit-btn">Add to Marquee</button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Reports -->
+            <div id="pending-reports" class="view-section admin-only">
+                <div class="admin-card">
+                    <h3>Generate Outstanding Reports</h3>
+                    <p style="font-size: 13px; color: var(--gray); margin-bottom: 20px;">Download formatted reports of all pending vendor payments and client balances.</p>
+                    <div class="form-grid" style="margin-bottom: 20px;">
+                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
+                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Client Dues</label>
+                            <button type="button" class="btn-primary" onclick="generateClientPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
+                            <button type="button" class="btn-excel" onclick="generateClientPendingExcel()">📊 Download Excel</button>
+                        </div>
+                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
+                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Vendor Allotments</label>
+                            <button type="button" class="btn-primary" onclick="generateVendorPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
+                            <button type="button" class="btn-excel" onclick="generateVendorPendingExcel()">📊 Download Excel</button>
+                        </div>
+                    </div>
+                    <div class="action-row" style="justify-content: flex-start;"><button class="btn-secondary" onclick="openEmailClient()">✉️ Compose Email to Admin</button></div>
+                </div>
+            </div>
+
+            <!-- Vendor Reports -->
+            <div id="vendor-reports" class="view-section admin-only">
+                <div class="admin-card">
+                    <h3>Vendor Allotment Reports</h3>
+                    <button type="button" class="btn-primary" onclick="renderVendorReport()">Refresh Report List</button>
+                    <div class="table-responsive-wrapper" style="margin-top: 20px;">
+                        <table class="data-table" id="vendor-report-table">
+                            <thead><tr><th>Date</th><th>Order ID</th><th>Vendor</th><th>Work Item</th><th>Allotment Amt (₹)</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -470,14 +490,13 @@
         // INACTIVITY AUTO-LOGOUT LOGIC
         // ==========================================
         let inactivityTimer;
-        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
 
         function resetTimer() {
             clearTimeout(inactivityTimer);
             inactivityTimer = setTimeout(logout, INACTIVITY_LIMIT);
         }
 
-        // Attach event listeners for user activity
         window.onload = function() {
             resetTimer();
             document.onmousemove = resetTimer;
@@ -489,9 +508,8 @@
         };
 
         function logout() {
-            // Replaces current history state so the user can't click 'Back' to return to dashboard
             alert('Session logged out.');
-            window.location.replace('index.html'); // Ensure your login page is named index.html
+            window.location.replace('login.html'); // Redirects to login page
         }
 
         // ==========================================
@@ -523,6 +541,12 @@
         document.getElementById('mobile-menu-btn').addEventListener('click', toggleSidebar);
         document.getElementById('sidebar-close-btn').addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
+
+        // Submenu Toggle
+        document.getElementById('settings-menu-toggle').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('settings-submenu').classList.toggle('open');
+        });
 
         navBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -739,6 +763,7 @@
             const orderId = document.getElementById('nw-orderid').value;
             const client = document.getElementById('nw-client').value;
             const phone = document.getElementById('nw-phone').value;
+            const fileInput = document.getElementById('nw-final-design').files[0];
             
             if(!client || phone.length !== 10) return alert("Valid client and 10 digit phone required.");
 
@@ -760,10 +785,33 @@
             };
             saveAppData();
             
-            let msg = `Hello ${client},\nYour order ${orderId} has been successfully placed with iam des!gns.\n\nWork: ${appData.orders[orderId].work}\nTotal Amount: ₹${appData.orders[orderId].amount}\nPaid: ₹${appData.orders[orderId].advance}\nBalance Due: ₹${appData.orders[orderId].balance}\n\nWe will notify you when it is ready!`;
-            window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            // Extract QR code for auto-download
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            let qrDataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : null;
 
-            showToast("Order saved successfully.");
+            // Trigger Downloads for QR and uploaded Design File
+            if(qrDataUrl) {
+                const qrLink = document.createElement('a');
+                qrLink.download = `QR_${orderId}.png`;
+                qrLink.href = qrDataUrl;
+                qrLink.click();
+            }
+            if(fileInput) {
+                const fileLink = document.createElement('a');
+                fileLink.download = `Design_${orderId}_${fileInput.name}`;
+                fileLink.href = URL.createObjectURL(fileInput);
+                fileLink.click();
+            }
+
+            // WhatsApp Message Formatting
+            let fileNotice = fileInput ? "Please find your Ticket QR code and design preview attached." : "Please find your Ticket QR code attached.";
+            let msg = `Hello ${client},\nYour order ${orderId} has been successfully placed with iam des!gns.\n\nWork: ${appData.orders[orderId].work}\nTotal Amount: ₹${appData.orders[orderId].amount}\nPaid: ₹${appData.orders[orderId].advance}\nBalance Due: ₹${appData.orders[orderId].balance}\n\n${fileNotice}\n\nWe will notify you when it is ready!`;
+            
+            setTimeout(() => {
+                alert(`✅ Order Saved.\n\nDownloads triggered for QR Code${fileInput ? ' and Design Preview' : ''}.\nPlease attach them manually in the WhatsApp window that opens next.`);
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            }, 500);
+
             document.getElementById('new-order-form').reset();
             document.getElementById('nw-works-container').innerHTML = `<div class="form-grid nw-work-row"><div class="form-group"><label>Work Type</label><select class="nw-work-type" onchange="handleWorkTypeChange(this)"><option value="Flex">Flex</option><option value="Digital Printing">Digital Printing</option><option value="Offset Printing">Offset Printing</option><option value="Special Work">Special Work</option><option value="Others">Others</option></select><input type="text" class="nw-work-others-input" placeholder="Type custom work..." style="display: none; margin-top: 8px;"></div><div class="form-group"><label>Description / Details</label><input type="text" class="nw-work-desc" placeholder="e.g. Dimensions or extra details"></div></div>`;
             
