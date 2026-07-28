@@ -123,11 +123,11 @@
         .bill-to-box { background-color: #edf1f5; border-left: 4px solid #ff6600; padding: 15px; width: 50%; min-height: 110px; border-radius: 2px; }
         .bill-to-box h3 { font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 700; border: none; padding: 0;}
         .bill-to-box textarea { width: 100%; background: transparent; border: none; resize: none; font-size: 13px; font-weight: 600; color: #555; line-height: 1.4; outline: none; height: 70px; font-family: inherit;}
-        .logo-meta-container { display: flex; flex-direction: column; align-items: flex-end; width: 35%; }
+        .logo-meta-container { display: flex; flex-direction: column; align-items: flex-end; width: 45%; }
         .logo-meta-container .logo { width: 140px; height: auto; margin-bottom: 12px; }
-        .meta-info { text-align: left; width: 150px; }
+        .meta-info { text-align: left; width: 250px; }
         .meta-field { display: flex; align-items: center; font-size: 13px; font-weight: 700; color: #ff6600; margin-bottom: 4px; letter-spacing: 0.5px; }
-        .meta-field input { border: none; background: transparent; font-size: 13px; font-weight: 700; color: #ff6600; width: 90px; outline: none; font-family: inherit;}
+        .meta-field input { border: none; background: transparent; font-size: 13px; font-weight: 700; color: #ff6600; width: 100%; outline: none; font-family: inherit;}
         .bill-table-section { width: 100%; margin-bottom: 20px; }
         .bill-table-section table { width: 100%; border-collapse: collapse; }
         .bill-table-section th { background-color: #55606e; color: #ffffff; font-size: 13px; font-weight: 700; text-align: left; padding: 10px 12px; }
@@ -559,6 +559,7 @@
             <p><strong>Order ID:</strong> <span id="modal-order-id"></span></p>
             <div class="form-group">
                 <label>Amount Received (₹)</label>
+                <!-- Cap the input visually as well -->
                 <input type="number" id="pay-modal-amt" oninput="if(parseFloat(this.value) > parseFloat(this.max)) this.value = this.max;">
             </div>
             <div class="form-group"><label>Mode</label><select id="pay-modal-mode"><option>Cash</option><option>Online</option></select></div>
@@ -1087,7 +1088,6 @@
                 if(type === 'Others') type = row.querySelector('.nw-work-others-input').value.trim() || 'Other Work';
                 const desc = row.querySelector('.nw-work-desc').value.trim();
                 
-                // Use only description for WhatsApp as requested. If blank, fallback to type so it's not totally empty.
                 let finalWorkString = desc ? desc : type;
                 workTypesArray.push(finalWorkString);
 
@@ -1139,11 +1139,20 @@
         // VENDOR ALLOTMENT & MASTER LOGIC
         // ==========================================
         function fetchOrderForAllotment() {
-            const orderId = document.getElementById('va-orderid').value.trim();
-            const order = findOrder(orderId);
+            const query = document.getElementById('va-orderid').value.trim();
+            const order = findOrder(query);
             if(!order) return alert("Order not found!");
+            
+            document.getElementById('va-orderid').value = order.orderId;
+
             const container = document.getElementById('va-rows-container');
             container.innerHTML = ''; 
+            
+            if(appData.vendors.length === 0) {
+                alert("Please add vendors in 'Settings -> Vendors Master' first.");
+                return;
+            }
+
             const workItems = order.work ? order.work.split(', ') : ["General Work"];
             workItems.forEach((workItem) => {
                 const row = document.createElement('div');
@@ -1160,6 +1169,7 @@
                 });
             });
         }
+        
         function populateMaterials(selectElement) {
             const row = selectElement.closest('.va-row');
             const vIndex = selectElement.value;
@@ -1167,28 +1177,43 @@
             if(vIndex === "") { mSelect.disabled = true; return; }
             mSelect.disabled = false;
             mSelect.innerHTML = '<option value="">Select Material...</option>';
-            appData.vendors[vIndex].materials.forEach((m) => { let opt = document.createElement('option'); opt.value = m.rate; opt.innerText = `${m.name} (₹${m.rate})`; mSelect.appendChild(opt); });
+            appData.vendors[vIndex].materials.forEach((m) => { 
+                let opt = document.createElement('option'); 
+                opt.value = m.rate; 
+                opt.innerText = `${m.name} (₹${m.rate})`; 
+                mSelect.appendChild(opt); 
+            });
+            fetchRateAndCalculate(mSelect);
         }
+        
         function fetchRateAndCalculate(element) {
             const row = element.closest('.va-row');
             const rate = parseFloat(row.querySelector('.va-material').value) || 0;
             const qty = parseFloat(row.querySelector('.va-qty').value) || 0;
             row.querySelector('.va-amount').value = rate * qty;
         }
+        
         function saveVendorAllotment() {
-            const orderId = document.getElementById('va-orderid').value.trim();
-            const order = appData.orders[orderId];
+            const query = document.getElementById('va-orderid').value.trim();
+            const order = findOrder(query);
             if(!order) return alert("Fetch an order first.");
+            
             let allotments = [];
+            let allValid = true;
             document.querySelectorAll('.va-row').forEach(row => {
                 const vIndex = row.querySelector('.va-vendor').value;
                 if(vIndex !== "") {
                     const vendorName = appData.vendors[vIndex].name;
                     const amt = row.querySelector('.va-amount').value || 0;
                     allotments.push({ workItem: row.querySelector('.va-work-item').value, vendorName, amount: amt });
-                    appData.vendorAllotmentsHistory.push({ date: new Date().toISOString(), orderId, vendor: vendorName, work: row.querySelector('.va-work-item').value, amount: amt });
+                    appData.vendorAllotmentsHistory.push({ date: new Date().toISOString(), orderId: order.orderId, vendor: vendorName, work: row.querySelector('.va-work-item').value, amount: amt });
+                } else {
+                    allValid = false;
                 }
             });
+
+            if(!allValid) return alert("Please select a vendor for all items, or the setup will be incomplete.");
+
             order.status = 'vendor_allotted'; order.allotments = allotments; order.vendorName = [...new Set(allotments.map(a => a.vendorName))].join(", ");
             saveAppData(); showToast("Vendor Allotted Successfully!"); document.getElementById('va-rows-container').innerHTML = '';
         }
