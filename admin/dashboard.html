@@ -526,10 +526,18 @@
     <!-- Script Block -->
     <script>
         // ==========================================
-        // INACTIVITY AUTO-LOGOUT LOGIC
+        // PREVENT BACK BUTTON & AUTO-LOGOUT LOGIC
         // ==========================================
+        
+        // Prevent Back Button - Redirect to Login immediately
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.location.replace("https://www.anilmalle.in/admin/");
+        };
+
+        // Auto Logout after 5 mins inactivity
         let inactivityTimer;
-        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
+        const INACTIVITY_LIMIT = 5 * 60 * 1000; 
 
         function resetTimer() {
             clearTimeout(inactivityTimer);
@@ -547,8 +555,9 @@
         };
 
         function logout() {
+            // Replace history state to redirect strictly to the requested login path (with trailing slash)
             alert('Session logged out.');
-            window.location.replace('https://www.anilmalle.in/admin'); 
+            window.location.replace('https://www.anilmalle.in/admin/'); 
         }
 
         // ==========================================
