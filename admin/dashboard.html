@@ -369,7 +369,10 @@
                     <h3>Billing Summary</h3>
                     <p><strong>Order ID:</strong> <span id="pa-oid"></span></p>
                     <p><strong>Pending Balance:</strong> <span style="color:red; font-weight:bold;">₹<span id="pa-bal"></span></span></p>
-                    <div class="action-row"><button type="button" class="btn-primary" onclick="openPaymentModal(currentlySearchedOrderId)">💳 Receive Payment</button></div>
+                    <p id="pa-paid-msg" style="display:none; color:green; font-weight:bold; margin-top:10px;">✅ This order is fully paid.</p>
+                    <div class="action-row">
+                        <button type="button" id="receive-payment-btn" class="btn-primary" onclick="openPaymentModal(currentlySearchedOrderId)">💳 Receive Payment</button>
+                    </div>
                 </div>
             </div>
 
@@ -555,7 +558,7 @@
         };
 
         function logout() {
-            // Replace history state to redirect strictly to the requested login path (with trailing slash)
+            // Replace history state to redirect strictly to the requested login path
             alert('Session logged out.');
             window.location.replace('https://www.anilmalle.in/admin/'); 
         }
@@ -974,7 +977,6 @@
             };
             saveAppData();
             
-            // Extract QR code for auto-download
             const qrCanvas = document.querySelector('#qrcode canvas');
             let qrDataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : null;
 
@@ -982,7 +984,6 @@
                 const qrLink = document.createElement('a'); qrLink.download = `QR_${orderId}.png`; qrLink.href = qrDataUrl; qrLink.click();
             }
             
-            // Trigger Downloads for uploaded Design Files
             filesToDownload.forEach(item => {
                 const fileLink = document.createElement('a'); 
                 fileLink.download = `Design_${orderId}_Part${item.index}_${item.file.name}`; 
@@ -990,7 +991,6 @@
                 fileLink.click();
             });
 
-            // WhatsApp Message Formatting
             let fileNotice = filesToDownload.length > 0 ? `Please find your Ticket QR code and ${filesToDownload.length} design preview(s) attached.` : "Please find your Ticket QR code attached.";
             let msg = `Hello ${client},\nYour order ${orderId} has been successfully placed with iam des!gns.\n\nWork: ${appData.orders[orderId].work}\nTotal Amount: ₹${appData.orders[orderId].amount}\nPaid: ₹${appData.orders[orderId].advance}\nBalance Due: ₹${appData.orders[orderId].balance}\n\n${fileNotice}\n\nWe will notify you when it is ready!`;
             
@@ -1063,7 +1063,6 @@
             saveAppData(); showToast("Vendor Allotted Successfully!"); document.getElementById('va-rows-container').innerHTML = '';
         }
 
-        // Vendor Master
         function addMaterialRow() {
             const container = document.getElementById('vm-materials-container');
             const row = document.createElement('div');
@@ -1161,19 +1160,47 @@
                 document.getElementById('pa-oid').innerText = order.orderId;
                 document.getElementById('pa-bal').innerText = order.balance;
                 document.getElementById('pay-result-card').style.display = 'block';
+
+                const payBtn = document.getElementById('receive-payment-btn');
+                const paidMsg = document.getElementById('pa-paid-msg');
+                if(parseFloat(order.balance) <= 0) {
+                    payBtn.style.display = 'none';
+                    paidMsg.style.display = 'block';
+                } else {
+                    payBtn.style.display = 'inline-block';
+                    paidMsg.style.display = 'none';
+                }
             } else alert("Order Not Found");
         }
-        function openPaymentModal(id) { document.getElementById('modal-order-id').innerText = id; document.getElementById('paymentModal').style.display = 'flex'; }
+        
+        function openPaymentModal(id) { 
+            const order = appData.orders[id];
+            if(parseFloat(order.balance) <= 0) return alert("This order is already fully paid.");
+            
+            document.getElementById('modal-order-id').innerText = id; 
+            document.getElementById('pay-modal-amt').value = order.balance; // auto-fill remaining balance
+            document.getElementById('paymentModal').style.display = 'flex'; 
+        }
+        
         function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
         
         function submitPayment() {
             const amt = parseFloat(document.getElementById('pay-modal-amt').value);
             const order = appData.orders[currentlySearchedOrderId];
+            
             if(order && amt) {
+                if(amt > parseFloat(order.balance)) {
+                    return alert("Payment amount cannot exceed the pending balance.");
+                }
+                
                 order.advance = (parseFloat(order.advance) + amt).toFixed(2);
                 order.balance = (parseFloat(order.balance) - amt).toFixed(2);
-                saveAppData(); showToast(`Payment of ₹${amt} received.`);
-                closePaymentModal(); searchPayment(); updateDashboardStats();
+                saveAppData(); 
+                showToast(`Payment of ₹${amt} received.`);
+                document.getElementById('pay-modal-amt').value = ''; // clear input
+                closePaymentModal(); 
+                searchPayment(); // refresh the view to update balance and hide button if 0
+                updateDashboardStats();
             }
         }
 
