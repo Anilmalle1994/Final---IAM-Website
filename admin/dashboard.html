@@ -35,7 +35,6 @@
         .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(242, 101, 34, 0.1); color: var(--primary); }
         .sidebar-menu a span.nav-text { display: flex; align-items: center; gap: 15px; }
         
-        /* Submenu Styling */
         .submenu { list-style: none; padding-top: 5px; display: none; }
         .submenu.open { display: block; }
         .submenu li { padding: 2px 10px 2px 30px; }
@@ -82,13 +81,12 @@
         .stat-card h4 { font-size: 14px; color: var(--gray); margin-bottom: 10px; }
         .stat-card p { font-size: 28px; font-weight: 700; color: var(--dark); }
 
-        /* Modified Data Table Styles */
         .table-responsive-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; padding-bottom: 10px;}
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; min-width: 800px; }
         .data-table th, .data-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eaeaea; }
-        .data-table th { background: var(--light-gray); color: var(--dark); font-weight: 600; cursor: pointer; user-select: none; position: relative;}
+        .data-table th { background: var(--light-gray); color: var(--dark); font-weight: 600; cursor: pointer; user-select: none; }
         .data-table th:hover { background: #e0e0e0; }
-        .data-table th .sort-icon { font-size: 10px; margin-left: 5px; opacity: 0.5; }
+        .sort-icon { font-size: 10px; margin-left: 5px; opacity: 0.5; }
         .table-filter-row input, .table-filter-row select { width: 100%; min-width: 100px; padding: 6px; font-size: 12px; border: 1px solid #ddd; border-radius: 4px; margin-top: 5px; font-family: inherit;}
         
         .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; text-transform: uppercase;}
@@ -153,7 +151,6 @@
             <li><a href="#" class="nav-btn" data-target="payment"><span class="nav-text">💰 Payment</span></a></li>
             <li><a href="#" class="nav-btn" data-target="delivery"><span class="nav-text">📦 Delivery</span></a></li>
             
-            <!-- Settings Submenu -->
             <li class="admin-only">
                 <a href="#" id="settings-menu-toggle"><span class="nav-text">⚙️ Settings</span> <span style="font-size: 10px;">▼</span></a>
                 <ul class="submenu" id="settings-submenu">
@@ -198,10 +195,11 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                         <h3 id="dashboard-list-title" style="margin: 0; border: none; padding: 0;">Order List</h3>
                         <div style="display: flex; gap: 10px;">
-                            <button class="btn-primary" style="padding: 6px 15px; font-size: 12px; background: #E74C3C;" onclick="downloadDashboardPDF()">📄 Download PDF</button>
+                            <button class="btn-primary" style="padding: 6px 15px; font-size: 12px; background: #e74c3c;" onclick="downloadDashboardPDF()">📄 Download PDF</button>
                             <button class="btn-secondary" style="padding: 6px 15px; font-size: 12px;" onclick="closeDashboardTable()">Close View</button>
                         </div>
                     </div>
+                    
                     <div class="table-responsive-wrapper">
                         <table class="data-table" id="dashboard-table">
                             <thead>
@@ -212,27 +210,31 @@
                                     <th onclick="sortDashboard('work')">Work Details <span class="sort-icon">⇅</span></th>
                                     <th onclick="sortDashboard('balance')">Balance (₹) <span class="sort-icon">⇅</span></th>
                                     <th onclick="sortDashboard('status')">Exact Status <span class="sort-icon">⇅</span></th>
-                                    <th class="no-pdf">Action</th>
+                                    <th>Action</th>
                                 </tr>
-                                <tr class="table-filter-row no-pdf">
-                                    <th><input type="text" id="dash-filt-id" onkeyup="renderDashboardTable()" placeholder="Filter ID"></th>
-                                    <th><input type="text" id="dash-filt-client" onkeyup="renderDashboardTable()" placeholder="Filter Client"></th>
-                                    <th><input type="text" id="dash-filt-phone" onkeyup="renderDashboardTable()" placeholder="Filter Phone"></th>
-                                    <th><input type="text" id="dash-filt-work" onkeyup="renderDashboardTable()" placeholder="Filter Work"></th>
-                                    <th><input type="number" id="dash-filt-bal" onkeyup="renderDashboardTable()" placeholder="Max Bal"></th>
+                                <!-- FILTER ROW -->
+                                <tr class="table-filter-row">
+                                    <th><input type="text" id="dash-filt-id" onkeyup="renderDashboardTable()" placeholder="Filter ID..."></th>
+                                    <th><input type="text" id="dash-filt-client" onkeyup="renderDashboardTable()" placeholder="Filter Client..."></th>
+                                    <th><input type="text" id="dash-filt-phone" onkeyup="renderDashboardTable()" placeholder="Filter Phone..."></th>
+                                    <th><input type="text" id="dash-filt-work" onkeyup="renderDashboardTable()" placeholder="Filter Work..."></th>
+                                    <th><input type="number" id="dash-filt-bal" onkeyup="renderDashboardTable()" placeholder="Max Bal..."></th>
                                     <th>
                                         <select id="dash-filt-status" onchange="renderDashboardTable()">
-                                            <option value="">All Status</option>
+                                            <option value="">All Statuses</option>
                                             <option value="designing">Designing</option>
                                             <option value="processing">Processing</option>
                                             <option value="vendor_allotted">Vendor Allotted</option>
-                                            <option value="ready_for_delivery">Ready</option>
+                                            <option value="ready_for_delivery">Ready for Delivery</option>
+                                            <option value="delivered">Delivered</option>
                                         </select>
                                     </th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                <!-- Rows injected via JS -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -275,11 +277,10 @@
                             <div class="form-group"><label>Order ID</label><input type="text" id="nw-orderid" readonly></div>
                             <div class="form-group"><label>Client Name</label><input type="text" id="nw-client" required></div>
                             <div class="form-group"><label>Contact</label><input type="tel" id="nw-phone" maxlength="10" required></div>
-                            <div class="form-group"><label>Upload Final Design (Optional)</label><input type="file" id="nw-final-design" accept="image/*" style="background: white;"></div>
                         </div>
                         
                         <div id="nw-works-container" style="margin-top: 15px;">
-                            <div class="form-grid nw-work-row">
+                            <div class="form-grid nw-work-row" style="border-bottom: 1px dashed #ccc; padding-bottom: 15px;">
                                 <div class="form-group">
                                     <label>Work Type</label>
                                     <select class="nw-work-type" onchange="handleWorkTypeChange(this)">
@@ -292,6 +293,10 @@
                                     <input type="text" class="nw-work-others-input" placeholder="Type custom work..." style="display: none; margin-top: 8px;">
                                 </div>
                                 <div class="form-group"><label>Description / Details</label><input type="text" class="nw-work-desc" placeholder="e.g. Dimensions or extra details"></div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label>Upload Design (Optional)</label>
+                                    <input type="file" class="nw-work-file" accept="image/*" style="background: white;">
+                                </div>
                             </div>
                         </div>
                         <button type="button" class="add-row-btn" onclick="addNewWorkRow()">+ Add Another Work</button>
@@ -543,7 +548,7 @@
 
         function logout() {
             alert('Session logged out.');
-            window.location.replace('login.html'); // Redirects to login page
+            window.location.replace('https://www.anilmalle.in/admin'); 
         }
 
         // ==========================================
@@ -584,22 +589,29 @@
 
         navBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
+                // If it's the settings toggle itself, don't change views
+                if(btn.id === 'settings-menu-toggle') return;
+                
                 e.preventDefault();
                 navBtns.forEach(b => b.classList.remove('active'));
                 viewSections.forEach(s => s.classList.remove('active'));
 
                 const targetId = btn.getAttribute('data-target');
                 btn.classList.add('active');
-                document.getElementById(targetId).classList.add('active');
                 
-                // Set Header Title cleanly
-                document.getElementById('page-title').innerText = btn.innerText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|▼|⚙️/g, '').trim();
+                // If a submenu item is clicked, keep the Settings parent highlighted
+                if(btn.closest('.submenu')) {
+                    document.getElementById('settings-menu-toggle').classList.add('active');
+                }
+
+                document.getElementById(targetId).classList.add('active');
+                document.getElementById('page-title').innerText = btn.innerText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|\▼/g, '').trim();
 
                 if(targetId === 'dashboard') updateDashboardStats();
                 if(targetId === 'new-order') initNewOrder();
                 if(targetId === 'staff-master') renderStaffTable();
 
-                if(window.innerWidth <= 768 && targetId !== 'settings') toggleSidebar();
+                if(window.innerWidth <= 768) toggleSidebar();
             });
         });
 
@@ -611,7 +623,7 @@
         }
 
         // ==========================================
-        // NEW ORDER ID GENERATOR (IAM-YYYYMMDD-001)
+        // NEW ORDER ID GENERATOR
         // ==========================================
         function generateOrderId() {
             const now = new Date();
@@ -630,133 +642,6 @@
             });
             const nextSerial = String(maxSerial + 1).padStart(3, '0');
             return `IAM-${dateStr}-${nextSerial}`;
-        }
-
-        // ==========================================
-        // DASHBOARD SORTING & FILTERING
-        // ==========================================
-        let dashSort = { col: null, asc: true };
-        let currentDashFilter = 'active';
-
-        function updateDashboardStats() {
-            let active = 0, desPending = 0, payPending = 0, readyDel = 0, pickupReady = 0;
-            Object.values(appData.orders).forEach(order => {
-                if(order.status !== 'delivered') active++;
-                if(order.status === 'designing') desPending++;
-                if(parseFloat(order.balance) > 0) payPending++;
-                if(order.status === 'ready_for_delivery') readyDel++;
-                if(order.status === 'vendor_allotted') pickupReady++;
-            });
-            document.getElementById('dash-active').innerText = active;
-            document.getElementById('dash-designs').innerText = desPending;
-            document.getElementById('dash-payments').innerText = payPending;
-            document.getElementById('dash-delivery').innerText = readyDel;
-            document.getElementById('dash-pickup').innerText = pickupReady;
-        }
-
-        function sortDashboard(col) {
-            if(dashSort.col === col) dashSort.asc = !dashSort.asc;
-            else { dashSort.col = col; dashSort.asc = true; }
-            renderDashboardTable(currentDashFilter);
-        }
-
-        function renderDashboardTable(filterType = currentDashFilter) {
-            currentDashFilter = filterType;
-            document.getElementById('dashboard-welcome').style.display = 'none';
-            document.getElementById('dashboard-list-container').style.display = 'block';
-            
-            const tbody = document.querySelector('#dashboard-table tbody');
-            tbody.innerHTML = '';
-            
-            let filteredOrders = Object.values(appData.orders);
-            if (filterType === 'active') filteredOrders = filteredOrders.filter(o => o.status !== 'delivered'); 
-            else if (filterType === 'designing') filteredOrders = filteredOrders.filter(o => o.status === 'designing');
-            else if (filterType === 'payments') filteredOrders = filteredOrders.filter(o => parseFloat(o.balance) > 0);
-            else if (filterType === 'staff_pickup') filteredOrders = filteredOrders.filter(o => o.status === 'vendor_allotted');
-            else if (filterType === 'delivery') filteredOrders = filteredOrders.filter(o => o.status === 'ready_for_delivery');
-            
-            // Text Filters
-            const fId = document.getElementById('dash-filt-id') ? document.getElementById('dash-filt-id').value.toLowerCase() : '';
-            const fClient = document.getElementById('dash-filt-client') ? document.getElementById('dash-filt-client').value.toLowerCase() : '';
-            const fPhone = document.getElementById('dash-filt-phone') ? document.getElementById('dash-filt-phone').value.toLowerCase() : '';
-            const fWork = document.getElementById('dash-filt-work') ? document.getElementById('dash-filt-work').value.toLowerCase() : '';
-            const fBal = document.getElementById('dash-filt-bal') ? parseFloat(document.getElementById('dash-filt-bal').value) : NaN;
-            const fStatus = document.getElementById('dash-filt-status') ? document.getElementById('dash-filt-status').value : '';
-
-            filteredOrders = filteredOrders.filter(o => {
-                if(fId && !o.orderId.toLowerCase().includes(fId)) return false;
-                if(fClient && !o.client.toLowerCase().includes(fClient)) return false;
-                if(fPhone && !o.phone.includes(fPhone)) return false;
-                if(fWork && !(o.work || '').toLowerCase().includes(fWork)) return false;
-                if(!isNaN(fBal) && parseFloat(o.balance) > fBal) return false;
-                if(fStatus && o.status !== fStatus) return false;
-                return true;
-            });
-
-            // Sorting
-            if(dashSort.col) {
-                filteredOrders.sort((a,b) => {
-                    let valA = a[dashSort.col] || ''; let valB = b[dashSort.col] || '';
-                    if(dashSort.col === 'balance') { valA = parseFloat(valA); valB = parseFloat(valB); }
-                    if(valA < valB) return dashSort.asc ? -1 : 1;
-                    if(valA > valB) return dashSort.asc ? 1 : -1;
-                    return 0;
-                });
-            }
-
-            if(filteredOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--gray);">No orders found.</td></tr>`;
-                return;
-            }
-            
-            filteredOrders.forEach(o => {
-                const tr = document.createElement('tr');
-                let balanceColor = parseFloat(o.balance) > 0 ? 'red' : 'green';
-                let displayStatus = o.status.replace(/_/g, ' ').toUpperCase();
-                
-                let actionBtnHTML = '<span style="color:var(--gray); font-size:12px;">No Actions</span>';
-                if(filterType === 'designing' && o.status === 'designing') {
-                    actionBtnHTML = `<button class="btn-primary no-pdf" style="padding: 4px 8px; font-size:10px;" onclick="alert('Proceed to New Work Order tab to process this design.')">Process</button>`;
-                } else if (parseFloat(o.balance) > 0) {
-                    actionBtnHTML = `<button class="btn-primary no-pdf" style="padding: 4px 8px; font-size:10px;" onclick="openPaymentModal('${o.orderId}')">Pay</button>`;
-                }
-
-                tr.innerHTML = `
-                    <td><strong>${o.orderId}</strong></td>
-                    <td>${o.client}</td>
-                    <td>${o.phone}</td>
-                    <td>${o.work || 'N/A'}</td>
-                    <td style="color: ${balanceColor}; font-weight: bold;">₹${o.balance}</td>
-                    <td><span class="status-badge status-${o.status.replace(/_/g, '-')}">${displayStatus}</span></td>
-                    <td class="no-pdf">${actionBtnHTML}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function closeDashboardTable() {
-            document.getElementById('dashboard-list-container').style.display = 'none';
-            document.getElementById('dashboard-welcome').style.display = 'block';
-        }
-
-        function downloadDashboardPDF() {
-            const element = document.getElementById('dashboard-table').cloneNode(true);
-            
-            const noPdfElements = element.querySelectorAll('.no-pdf');
-            noPdfElements.forEach(el => el.parentNode.removeChild(el));
-
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #f26522; border-bottom: 2px solid #f26522; padding-bottom: 10px; margin-bottom: 20px;">Order List Report</h2><p style="margin-bottom: 15px; font-size: 14px; color: #555;">Generated on: ${new Date().toLocaleString()}</p></div>`;
-            
-            element.style.width = '100%'; element.style.borderCollapse = 'collapse'; element.style.fontSize = '12px';
-            element.querySelectorAll('th, td').forEach(cell => { cell.style.border = '1px solid #ddd'; cell.style.padding = '8px'; cell.style.textAlign = 'left'; });
-            element.querySelectorAll('th').forEach(th => { th.style.backgroundColor = '#f4f4f4'; th.style.color = '#333'; });
-
-            wrapper.appendChild(element);
-
-            const opt = { margin: 10, filename: `Order_List_Report_${Date.now()}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
-            showToast("Generating PDF...");
-            html2pdf().set(opt).from(wrapper).save();
         }
 
         // ==========================================
@@ -832,8 +717,160 @@
         }
 
         // ==========================================
-        // DESIGNING
+        // DASHBOARD (SORT, FILTER, EXPORT)
         // ==========================================
+        function updateDashboardStats() {
+            let active = 0, desPending = 0, payPending = 0, readyDel = 0, pickupReady = 0;
+            Object.values(appData.orders).forEach(order => {
+                if(order.status !== 'delivered') active++;
+                if(order.status === 'designing') desPending++;
+                if(parseFloat(order.balance) > 0) payPending++;
+                if(order.status === 'ready_for_delivery') readyDel++;
+                if(order.status === 'vendor_allotted') pickupReady++;
+            });
+            document.getElementById('dash-active').innerText = active;
+            document.getElementById('dash-designs').innerText = desPending;
+            document.getElementById('dash-payments').innerText = payPending;
+            document.getElementById('dash-delivery').innerText = readyDel;
+            document.getElementById('dash-pickup').innerText = pickupReady;
+        }
+
+        let currentDashFilter = 'active';
+        let dashSort = { col: null, asc: true };
+
+        function sortDashboard(col) {
+            if(dashSort.col === col) dashSort.asc = !dashSort.asc;
+            else { dashSort.col = col; dashSort.asc = true; }
+            renderDashboardTable();
+        }
+
+        function renderDashboardTable(filterType = currentDashFilter) {
+            currentDashFilter = filterType;
+            document.getElementById('dashboard-welcome').style.display = 'none';
+            document.getElementById('dashboard-list-container').style.display = 'block';
+            
+            let titleMap = { 'active': 'All Active Orders', 'designing': 'Designs Pending List', 'payments': 'Payments Pending List', 'staff_pickup': 'Pending Staff Pickups', 'delivery': 'Ready for Delivery List' };
+            document.getElementById('dashboard-list-title').innerText = titleMap[filterType] || 'Order List';
+
+            const tbody = document.querySelector('#dashboard-table tbody');
+            tbody.innerHTML = '';
+            
+            let filteredOrders = Object.values(appData.orders);
+            
+            if (filterType === 'active') filteredOrders = filteredOrders.filter(o => o.status !== 'delivered'); 
+            else if (filterType === 'designing') filteredOrders = filteredOrders.filter(o => o.status === 'designing');
+            else if (filterType === 'payments') filteredOrders = filteredOrders.filter(o => parseFloat(o.balance) > 0);
+            else if (filterType === 'staff_pickup') filteredOrders = filteredOrders.filter(o => o.status === 'vendor_allotted');
+            else if (filterType === 'delivery') filteredOrders = filteredOrders.filter(o => o.status === 'ready_for_delivery');
+            
+            const fId = (document.getElementById('dash-filt-id')?.value || '').toLowerCase();
+            const fClient = (document.getElementById('dash-filt-client')?.value || '').toLowerCase();
+            const fPhone = (document.getElementById('dash-filt-phone')?.value || '').toLowerCase();
+            const fWork = (document.getElementById('dash-filt-work')?.value || '').toLowerCase();
+            const fBal = parseFloat(document.getElementById('dash-filt-bal')?.value);
+            const fStatus = document.getElementById('dash-filt-status')?.value;
+
+            filteredOrders = filteredOrders.filter(o => {
+                if(fId && !o.orderId.toLowerCase().includes(fId)) return false;
+                if(fClient && !o.client.toLowerCase().includes(fClient)) return false;
+                if(fPhone && !o.phone.includes(fPhone)) return false;
+                if(fWork && !(o.work || '').toLowerCase().includes(fWork)) return false;
+                if(!isNaN(fBal) && parseFloat(o.balance) > fBal) return false;
+                if(fStatus && o.status !== fStatus) return false;
+                return true;
+            });
+
+            if(dashSort.col) {
+                filteredOrders.sort((a, b) => {
+                    let valA = a[dashSort.col] || ''; let valB = b[dashSort.col] || '';
+                    if(dashSort.col === 'balance') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
+                    if(valA < valB) return dashSort.asc ? -1 : 1;
+                    if(valA > valB) return dashSort.asc ? 1 : -1;
+                    return 0;
+                });
+            }
+            
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--gray);">No orders found.</td></tr>`;
+                return;
+            }
+
+            filteredOrders.forEach(o => {
+                const tr = document.createElement('tr');
+                let balanceColor = parseFloat(o.balance) > 0 ? 'red' : 'green';
+                let displayStatus = o.status.replace(/_/g, ' ').toUpperCase();
+                
+                let actionBtnHTML = '<span style="color:var(--gray); font-size:12px;">No Actions</span>';
+                if(filterType === 'designing' && o.status === 'designing') {
+                    actionBtnHTML = `<button class="btn-primary" style="padding: 4px 8px; font-size: 10px;" onclick="markDesignReady('${o.orderId}')">Design Ready</button>`;
+                } else if (filterType === 'payments' && parseFloat(o.balance) > 0) {
+                    actionBtnHTML = `<button class="btn-primary" style="padding: 4px 8px; font-size: 10px; background: #25D366;" onclick="openPaymentModal('${o.orderId}')">Pay</button>`;
+                }
+
+                tr.innerHTML = `<td><strong>${o.orderId}</strong></td><td>${o.client}</td><td>${o.phone}</td><td>${o.work || 'N/A'}</td><td style="color: ${balanceColor}; font-weight: bold;">₹${o.balance}</td><td><span class="status-badge status-${o.status.replace(/_/g, '-')}">${displayStatus}</span></td><td>${actionBtnHTML}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function closeDashboardTable() {
+            document.getElementById('dashboard-list-container').style.display = 'none';
+            document.getElementById('dashboard-welcome').style.display = 'block';
+        }
+
+        function downloadDashboardPDF() {
+            let filteredOrders = Object.values(appData.orders);
+            let filterType = currentDashFilter;
+            
+            if (filterType === 'active') filteredOrders = filteredOrders.filter(o => o.status !== 'delivered'); 
+            else if (filterType === 'designing') filteredOrders = filteredOrders.filter(o => o.status === 'designing');
+            else if (filterType === 'payments') filteredOrders = filteredOrders.filter(o => parseFloat(o.balance) > 0);
+            else if (filterType === 'staff_pickup') filteredOrders = filteredOrders.filter(o => o.status === 'vendor_allotted');
+            else if (filterType === 'delivery') filteredOrders = filteredOrders.filter(o => o.status === 'ready_for_delivery');
+            
+            const fId = (document.getElementById('dash-filt-id')?.value || '').toLowerCase();
+            const fClient = (document.getElementById('dash-filt-client')?.value || '').toLowerCase();
+            const fPhone = (document.getElementById('dash-filt-phone')?.value || '').toLowerCase();
+            const fWork = (document.getElementById('dash-filt-work')?.value || '').toLowerCase();
+            const fBal = parseFloat(document.getElementById('dash-filt-bal')?.value);
+            const fStatus = document.getElementById('dash-filt-status')?.value;
+
+            filteredOrders = filteredOrders.filter(o => {
+                if(fId && !o.orderId.toLowerCase().includes(fId)) return false;
+                if(fClient && !o.client.toLowerCase().includes(fClient)) return false;
+                if(fPhone && !o.phone.includes(fPhone)) return false;
+                if(fWork && !(o.work || '').toLowerCase().includes(fWork)) return false;
+                if(!isNaN(fBal) && parseFloat(o.balance) > fBal) return false;
+                if(fStatus && o.status !== fStatus) return false;
+                return true;
+            });
+
+            if(dashSort.col) {
+                filteredOrders.sort((a, b) => {
+                    let valA = a[dashSort.col] || ''; let valB = b[dashSort.col] || '';
+                    if(dashSort.col === 'balance') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
+                    if(valA < valB) return dashSort.asc ? -1 : 1;
+                    if(valA > valB) return dashSort.asc ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            let titleMap = { 'active': 'Active Orders', 'designing': 'Designs Pending', 'payments': 'Payments Pending', 'staff_pickup': 'Staff Pickups', 'delivery': 'Ready for Delivery' };
+            let title = titleMap[filterType] || 'Order List';
+
+            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #f26522; border-bottom: 2px solid #f26522; padding-bottom: 10px;">${title} Report</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Client Name</th><th style="padding: 10px; border: 1px solid #ddd;">Contact</th><th style="padding: 10px; border: 1px solid #ddd;">Work Details</th><th style="padding: 10px; border: 1px solid #ddd;">Status</th><th style="padding: 10px; border: 1px solid #ddd;">Balance (₹)</th></tr></thead><tbody>`;
+            
+            let totalBal = 0;
+            filteredOrders.forEach(o => {
+                totalBal += parseFloat(o.balance) || 0;
+                html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${o.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.client}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.phone}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.work || 'N/A'}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.status.replace(/_/g, ' ').toUpperCase()}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${o.balance}</td></tr>`;
+            });
+            html += `</tbody><tfoot><tr><td colspan="5" style="text-align: right; padding: 10px; font-weight: bold;">Total Balance Displayed:</td><td style="padding: 10px; font-weight: bold; font-size: 14px; color: red;">₹${totalBal}</td></tr></tfoot></table></div>`;
+            
+            html2pdf().set({ margin: 10, filename: `Dashboard_Orders_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } }).from(html).save();
+            showToast("Downloading Dashboard Report PDF...");
+        }
+
+        // Designing
         function saveDesignRequest() {
             const client = document.getElementById('des-client').value;
             const phone = document.getElementById('des-phone').value;
@@ -844,6 +881,22 @@
         }
         function addDesignWorkRow() {
             document.getElementById('des-works-container').innerHTML += `<div class="form-grid des-work-row"><div class="form-group"><label>Work</label><input type="text" class="des-work-input"></div><div class="form-group"><label>Dimensions</label><input type="text" class="des-dim-input"></div></div>`;
+        }
+
+        function markDesignReady(orderId) {
+            const order = appData.orders[orderId];
+            if(!order) return;
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelector('[data-target="new-order"]').classList.add('active');
+            document.getElementById('new-order').classList.add('active');
+            
+            document.getElementById('nw-orderid').value = order.orderId;
+            document.getElementById('nw-client').value = order.client;
+            document.getElementById('nw-phone').value = order.phone;
+            document.getElementById('nw-amount').value = order.amount || 0;
+            document.getElementById('nw-advance').value = order.advance || 0;
+            calcBalance();
         }
 
         // ==========================================
@@ -868,7 +921,9 @@
             const row = document.createElement('div');
             row.className = 'form-grid nw-work-row';
             row.style.marginTop = '15px';
-            row.innerHTML = `<div class="form-group"><label>Work Type</label><select class="nw-work-type" onchange="handleWorkTypeChange(this)"><option value="Flex">Flex</option><option value="Digital Printing">Digital Printing</option><option value="Offset Printing">Offset Printing</option><option value="Special Work">Special Work</option><option value="Others">Others</option></select><input type="text" class="nw-work-others-input" placeholder="Type custom work..." style="display: none; margin-top: 8px;"></div><div class="form-group"><label>Description / Details</label><input type="text" class="nw-work-desc" placeholder="e.g. Dimensions or extra details"></div>`;
+            row.style.borderTop = '1px dashed #ccc';
+            row.style.paddingTop = '15px';
+            row.innerHTML = `<div class="form-group"><label>Work Type</label><select class="nw-work-type" onchange="handleWorkTypeChange(this)"><option value="Flex">Flex</option><option value="Digital Printing">Digital Printing</option><option value="Offset Printing">Offset Printing</option><option value="Special Work">Special Work</option><option value="Others">Others</option></select><input type="text" class="nw-work-others-input" placeholder="Type custom work..." style="display: none; margin-top: 8px;"></div><div class="form-group"><label>Description / Details</label><input type="text" class="nw-work-desc" placeholder="e.g. Dimensions or extra details"></div><div class="form-group" style="grid-column: 1 / -1;"><label>Upload Design (Optional)</label><input type="file" class="nw-work-file" accept="image/*" style="background: white;"></div>`;
             container.appendChild(row);
         }
 
@@ -882,16 +937,22 @@
             const orderId = document.getElementById('nw-orderid').value;
             const client = document.getElementById('nw-client').value;
             const phone = document.getElementById('nw-phone').value;
-            const fileInput = document.getElementById('nw-final-design').files[0];
             
             if(!client || phone.length !== 10) return alert("Valid client and 10 digit phone required.");
 
             let workTypesArray = [];
-            document.querySelectorAll('.nw-work-row').forEach(row => {
+            let filesToDownload = [];
+
+            document.querySelectorAll('.nw-work-row').forEach((row, index) => {
                 let type = row.querySelector('.nw-work-type').value;
                 if(type === 'Others') type = row.querySelector('.nw-work-others-input').value.trim() || 'Other Work';
                 const desc = row.querySelector('.nw-work-desc').value.trim();
                 workTypesArray.push(desc ? `${type} (${desc})` : type);
+
+                const fileInput = row.querySelector('.nw-work-file');
+                if(fileInput && fileInput.files.length > 0) {
+                    filesToDownload.push({ file: fileInput.files[0], index: index + 1 });
+                }
             });
 
             appData.orders[orderId] = {
@@ -908,34 +969,31 @@
             const qrCanvas = document.querySelector('#qrcode canvas');
             let qrDataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : null;
 
-            // Trigger Downloads for QR and uploaded Design File
             if(qrDataUrl) {
-                const qrLink = document.createElement('a');
-                qrLink.download = `QR_${orderId}.png`;
-                qrLink.href = qrDataUrl;
-                qrLink.click();
+                const qrLink = document.createElement('a'); qrLink.download = `QR_${orderId}.png`; qrLink.href = qrDataUrl; qrLink.click();
             }
-            if(fileInput) {
-                const fileLink = document.createElement('a');
-                fileLink.download = `Design_${orderId}_${fileInput.name}`;
-                fileLink.href = URL.createObjectURL(fileInput);
+            
+            // Trigger Downloads for uploaded Design Files
+            filesToDownload.forEach(item => {
+                const fileLink = document.createElement('a'); 
+                fileLink.download = `Design_${orderId}_Part${item.index}_${item.file.name}`; 
+                fileLink.href = URL.createObjectURL(item.file); 
                 fileLink.click();
-            }
+            });
 
             // WhatsApp Message Formatting
-            let fileNotice = fileInput ? "Please find your Ticket QR code and design preview attached." : "Please find your Ticket QR code attached.";
+            let fileNotice = filesToDownload.length > 0 ? `Please find your Ticket QR code and ${filesToDownload.length} design preview(s) attached.` : "Please find your Ticket QR code attached.";
             let msg = `Hello ${client},\nYour order ${orderId} has been successfully placed with iam des!gns.\n\nWork: ${appData.orders[orderId].work}\nTotal Amount: ₹${appData.orders[orderId].amount}\nPaid: ₹${appData.orders[orderId].advance}\nBalance Due: ₹${appData.orders[orderId].balance}\n\n${fileNotice}\n\nWe will notify you when it is ready!`;
             
             setTimeout(() => {
-                alert(`✅ Order Saved.\n\nDownloads triggered for QR Code${fileInput ? ' and Design Preview' : ''}.\nPlease attach them manually in the WhatsApp window that opens next.`);
+                alert(`✅ Order Saved.\n\nDownloads triggered for QR Code${filesToDownload.length > 0 ? ' and Design Previews' : ''}.\nPlease attach them manually in the WhatsApp window that opens next.`);
                 window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
             }, 500);
 
             document.getElementById('new-order-form').reset();
-            document.getElementById('nw-works-container').innerHTML = `<div class="form-grid nw-work-row"><div class="form-group"><label>Work Type</label><select class="nw-work-type" onchange="handleWorkTypeChange(this)"><option value="Flex">Flex</option><option value="Digital Printing">Digital Printing</option><option value="Offset Printing">Offset Printing</option><option value="Special Work">Special Work</option><option value="Others">Others</option></select><input type="text" class="nw-work-others-input" placeholder="Type custom work..." style="display: none; margin-top: 8px;"></div><div class="form-group"><label>Description / Details</label><input type="text" class="nw-work-desc" placeholder="e.g. Dimensions or extra details"></div></div>`;
+            document.getElementById('nw-works-container').innerHTML = `<div class="form-grid nw-work-row" style="border-bottom: 1px dashed #ccc; padding-bottom: 15px;"><div class="form-group"><label>Work Type</label><select class="nw-work-type" onchange="handleWorkTypeChange(this)"><option value="Flex">Flex</option><option value="Digital Printing">Digital Printing</option><option value="Offset Printing">Offset Printing</option><option value="Special Work">Special Work</option><option value="Others">Others</option></select><input type="text" class="nw-work-others-input" placeholder="Type custom work..." style="display: none; margin-top: 8px;"></div><div class="form-group"><label>Description / Details</label><input type="text" class="nw-work-desc" placeholder="e.g. Dimensions or extra details"></div><div class="form-group" style="grid-column: 1 / -1;"><label>Upload Design (Optional)</label><input type="file" class="nw-work-file" accept="image/*" style="background: white;"></div></div>`;
             
-            initNewOrder();
-            updateDashboardStats();
+            initNewOrder(); updateDashboardStats();
         }
 
         // ==========================================
