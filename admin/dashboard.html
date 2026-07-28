@@ -502,35 +502,93 @@
                 </div>
             </div>
 
-            <!-- Pending Reports -->
+            <!-- Pending Reports (Client Dues & Vendor Pending) -->
             <div id="pending-reports" class="view-section admin-only">
+                
                 <div class="admin-card">
-                    <h3>Generate Outstanding Reports</h3>
-                    <p style="font-size: 13px; color: var(--gray); margin-bottom: 20px;">Download formatted reports of all pending vendor payments and client balances.</p>
-                    <div class="form-grid" style="margin-bottom: 20px;">
-                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
-                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Client Dues</label>
-                            <button type="button" class="btn-primary" onclick="generateClientPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
-                            <button type="button" class="btn-excel" onclick="generateClientPendingExcel()">📊 Download Excel</button>
-                        </div>
-                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
-                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Vendor Allotments</label>
-                            <button type="button" class="btn-primary" onclick="generateVendorPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
-                            <button type="button" class="btn-excel" onclick="generateVendorPendingExcel()">📊 Download Excel</button>
-                        </div>
+                    <h3>Pending Client Dues</h3>
+                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none; justify-content: flex-start; margin-bottom: 10px;">
+                        <button type="button" class="btn-primary" onclick="downloadPRClientPDF()">📄 Download PDF</button>
+                        <button type="button" class="btn-excel" onclick="downloadPRClientExcel()">📊 Download Excel</button>
                     </div>
-                    <div class="action-row" style="justify-content: flex-start;"><button class="btn-secondary" onclick="openEmailClient()">✉️ Compose Email to Admin</button></div>
+                    <div class="table-responsive-wrapper">
+                        <table class="data-table" id="pr-client-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortPRClient('orderId')">Order ID <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortPRClient('client')">Client Name <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortPRClient('phone')">Contact <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortPRClient('balance')">Balance Due (₹) <span class="sort-icon">⇅</span></th>
+                                </tr>
+                                <tr class="table-filter-row">
+                                    <th><input type="text" id="prc-filt-id" onkeyup="renderPRClient()" placeholder="Filter ID..."></th>
+                                    <th><input type="text" id="prc-filt-client" onkeyup="renderPRClient()" placeholder="Filter Client..."></th>
+                                    <th><input type="text" id="prc-filt-phone" onkeyup="renderPRClient()" placeholder="Filter Phone..."></th>
+                                    <th><input type="number" id="prc-filt-bal" onkeyup="renderPRClient()" placeholder="Max Balance..."></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
+
+                <div class="admin-card">
+                    <h3>Pending Vendor Allotments</h3>
+                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none; justify-content: flex-start; margin-bottom: 10px;">
+                        <button type="button" class="btn-primary" onclick="downloadPRVendorPDF()">📄 Download PDF</button>
+                        <button type="button" class="btn-excel" onclick="downloadPRVendorExcel()">📊 Download Excel</button>
+                    </div>
+                    <div class="table-responsive-wrapper">
+                        <table class="data-table" id="pr-vendor-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortPRVendor('date')">Date <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortPRVendor('orderId')">Order ID <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortPRVendor('vendor')">Vendor Name <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortPRVendor('work')">Work Allotted <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortPRVendor('amount')">Amount (₹) <span class="sort-icon">⇅</span></th>
+                                </tr>
+                                <tr class="table-filter-row">
+                                    <th><input type="text" id="prv-filt-date" onkeyup="renderPRVendor()" placeholder="Filter Date..."></th>
+                                    <th><input type="text" id="prv-filt-order" onkeyup="renderPRVendor()" placeholder="Filter Order..."></th>
+                                    <th><input type="text" id="prv-filt-vendor" onkeyup="renderPRVendor()" placeholder="Filter Vendor..."></th>
+                                    <th><input type="text" id="prv-filt-work" onkeyup="renderPRVendor()" placeholder="Filter Work..."></th>
+                                    <th><input type="number" id="prv-filt-amt" onkeyup="renderPRVendor()" placeholder="Max Amount..."></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Vendor Reports -->
             <div id="vendor-reports" class="view-section admin-only">
                 <div class="admin-card">
                     <h3>Vendor Allotment Reports</h3>
-                    <button type="button" class="btn-primary" onclick="renderVendorReport()">Refresh Report List</button>
-                    <div class="table-responsive-wrapper" style="margin-top: 20px;">
-                        <table class="data-table" id="vendor-report-table">
-                            <thead><tr><th>Date</th><th>Order ID</th><th>Vendor</th><th>Work Item</th><th>Allotment Amt (₹)</th></tr></thead>
+                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none; justify-content: flex-start; margin-bottom: 10px;">
+                        <button type="button" class="btn-primary" onclick="downloadVRPDF()">📄 Download PDF</button>
+                        <button type="button" class="btn-excel" onclick="downloadVRExcel()">📊 Download Excel</button>
+                    </div>
+                    <div class="table-responsive-wrapper" style="margin-top: 10px;">
+                        <table class="data-table" id="vr-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortVR('date')">Date <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortVR('orderId')">Order ID <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortVR('vendor')">Vendor Name <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortVR('work')">Work Allotted <span class="sort-icon">⇅</span></th>
+                                    <th onclick="sortVR('amount')">Amount (₹) <span class="sort-icon">⇅</span></th>
+                                </tr>
+                                <tr class="table-filter-row">
+                                    <th><input type="text" id="vr-filt-date" onkeyup="renderVendorReport()" placeholder="Filter Date..."></th>
+                                    <th><input type="text" id="vr-filt-order" onkeyup="renderVendorReport()" placeholder="Filter Order..."></th>
+                                    <th><input type="text" id="vr-filt-vendor" onkeyup="renderVendorReport()" placeholder="Filter Vendor..."></th>
+                                    <th><input type="text" id="vr-filt-work" onkeyup="renderVendorReport()" placeholder="Filter Work..."></th>
+                                    <th><input type="number" id="vr-filt-amt" onkeyup="renderVendorReport()" placeholder="Max Amount..."></th>
+                                </tr>
+                            </thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -559,8 +617,11 @@
             <p><strong>Order ID:</strong> <span id="modal-order-id"></span></p>
             <div class="form-group">
                 <label>Amount Received (₹)</label>
-                <!-- Cap the input visually as well -->
-                <input type="number" id="pay-modal-amt" oninput="if(parseFloat(this.value) > parseFloat(this.max)) this.value = this.max;">
+                <input type="number" id="pay-modal-amt">
+            </div>
+            <div class="form-group">
+                <label>Round Off / Discount (₹)</label>
+                <input type="number" id="pay-modal-roundoff" value="0">
             </div>
             <div class="form-group"><label>Mode</label><select id="pay-modal-mode"><option>Cash</option><option>Online</option></select></div>
             <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="submitPayment()">Submit</button>
@@ -732,6 +793,8 @@
                 if(targetId === 'dashboard') updateDashboardStats();
                 if(targetId === 'new-order') initNewOrder();
                 if(targetId === 'staff-master') renderStaffTable();
+                if(targetId === 'pending-reports') { renderPRClient(); renderPRVendor(); }
+                if(targetId === 'vendor-reports') renderVendorReport();
 
                 if(window.innerWidth <= 768) toggleSidebar();
             });
@@ -764,38 +827,8 @@
         }
 
         // ==========================================
-        // PDF, EXCEL & VCF GENERATION LOGIC
+        // VCF GENERATION LOGIC
         // ==========================================
-        function generateClientPendingPDF() {
-            let pendingOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0);
-            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #f26522; border-bottom: 2px solid #f26522; padding-bottom: 10px;">Pending Client Dues</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Client Name</th><th style="padding: 10px; border: 1px solid #ddd;">Contact</th><th style="padding: 10px; border: 1px solid #ddd;">Balance Due (₹)</th></tr></thead><tbody>`;
-            let totalDues = 0;
-            pendingOrders.forEach(o => { totalDues += parseFloat(o.balance); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${o.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.client}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.phone}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: red;">₹${o.balance}</td></tr>`; });
-            html += `</tbody><tfoot><tr><td colspan="3" style="text-align: right; padding: 10px; font-weight: bold;">Grand Total Pending:</td><td style="padding: 10px; font-weight: bold; font-size: 16px; color: red;">₹${totalDues}</td></tr></tfoot></table></div>`;
-            html2pdf().set({ margin: 10, filename: `Client_Dues_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
-        }
-
-        function generateVendorPendingPDF() {
-            let history = appData.vendorAllotmentsHistory || [];
-            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #4a238b; border-bottom: 2px solid #4a238b; padding-bottom: 10px;">Vendor Allotments History</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Date</th><th style="padding: 10px; border: 1px solid #ddd;">Vendor Name</th><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Work Allotted</th><th style="padding: 10px; border: 1px solid #ddd;">Amount (₹)</th></tr></thead><tbody>`;
-            let totalAllotments = 0;
-            history.forEach(v => { totalAllotments += parseFloat(v.amount); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${new Date(v.date).toLocaleDateString()}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.vendor}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.work}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${v.amount}</td></tr>`; });
-            html += `</tbody><tfoot><tr><td colspan="4" style="text-align: right; padding: 10px; font-weight: bold;">Total Allotted Amount:</td><td style="padding: 10px; font-weight: bold; font-size: 16px;">₹${totalAllotments}</td></tr></tfoot></table></div>`;
-            html2pdf().set({ margin: 10, filename: `Vendor_Allotments_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
-        }
-
-        function generateClientPendingExcel() {
-            let pendingOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0).map(o => ({ "Order ID": o.orderId, "Client Name": o.client, "Contact Number": o.phone, "Pending Balance (₹)": o.balance }));
-            if (pendingOrders.length === 0) return alert("No pending client dues!");
-            let worksheet = XLSX.utils.json_to_sheet(pendingOrders); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Clients"); XLSX.writeFile(workbook, `Client_Pending_Dues_${Date.now()}.xlsx`);
-        }
-
-        function generateVendorPendingExcel() {
-            let history = (appData.vendorAllotmentsHistory || []).map(v => ({ "Date": new Date(v.date).toLocaleDateString(), "Vendor Name": v.vendor, "Order ID": v.orderId, "Work Allotted": v.work, "Amount (₹)": v.amount }));
-            if (history.length === 0) return alert("No vendor records found!");
-            let worksheet = XLSX.utils.json_to_sheet(history); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Allotments"); XLSX.writeFile(workbook, `Vendor_Allotments_${Date.now()}.xlsx`);
-        }
-
         function downloadClientsVCF() {
             let vcfData = "";
             let clientsAdded = new Set();
@@ -1088,6 +1121,7 @@
                 if(type === 'Others') type = row.querySelector('.nw-work-others-input').value.trim() || 'Other Work';
                 const desc = row.querySelector('.nw-work-desc').value.trim();
                 
+                // WhatsApp & Order List Work String formatting
                 let finalWorkString = desc ? desc : type;
                 workTypesArray.push(finalWorkString);
 
@@ -1218,7 +1252,6 @@
             saveAppData(); showToast("Vendor Allotted Successfully!"); document.getElementById('va-rows-container').innerHTML = '';
         }
 
-        // Vendor Master
         function addMaterialRow() {
             const container = document.getElementById('vm-materials-container');
             const row = document.createElement('div');
@@ -1227,6 +1260,7 @@
             row.innerHTML = `<div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div><div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div>`;
             container.appendChild(row);
         }
+        
         function saveVendor() {
             const vName = document.getElementById('vm-name').value.trim();
             if(!vName) return alert("Vendor Name required!");
@@ -1247,14 +1281,232 @@
             document.getElementById('vm-materials-container').innerHTML = `<div class="form-grid vm-material-row"><div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div><div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div></div>`;
         }
 
-        function renderVendorReport() {
-            const tbody = document.querySelector('#vendor-report-table tbody');
+        // ==========================================
+        // PENDING REPORTS & VENDOR REPORTS
+        // ==========================================
+
+        let prClientSort = { col: null, asc: true };
+        function sortPRClient(col) {
+            if(prClientSort.col === col) prClientSort.asc = !prClientSort.asc;
+            else { prClientSort.col = col; prClientSort.asc = true; }
+            renderPRClient();
+        }
+
+        function renderPRClient() {
+            const tbody = document.querySelector('#pr-client-table tbody');
             tbody.innerHTML = '';
-            (appData.vendorAllotmentsHistory || []).forEach(f => {
+            
+            let filteredOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0);
+            
+            const fId = (document.getElementById('prc-filt-id')?.value || '').toLowerCase();
+            const fClient = (document.getElementById('prc-filt-client')?.value || '').toLowerCase();
+            const fPhone = (document.getElementById('prc-filt-phone')?.value || '').toLowerCase();
+            const fBal = parseFloat(document.getElementById('prc-filt-bal')?.value);
+
+            filteredOrders = filteredOrders.filter(o => {
+                if(fId && !o.orderId.toLowerCase().includes(fId)) return false;
+                if(fClient && !o.client.toLowerCase().includes(fClient)) return false;
+                if(fPhone && !o.phone.includes(fPhone)) return false;
+                if(!isNaN(fBal) && parseFloat(o.balance) > fBal) return false;
+                return true;
+            });
+
+            if(prClientSort.col) {
+                filteredOrders.sort((a, b) => {
+                    let valA = a[prClientSort.col] || ''; let valB = b[prClientSort.col] || '';
+                    if(prClientSort.col === 'balance') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
+                    if(valA < valB) return prClientSort.asc ? -1 : 1;
+                    if(valA > valB) return prClientSort.asc ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--gray);">No pending dues found.</td></tr>`;
+                return;
+            }
+
+            filteredOrders.forEach(o => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${new Date(f.date).toLocaleDateString()}</td><td><strong>${f.orderId}</strong></td><td>${f.vendor}</td><td>${f.work}</td><td style="font-weight: bold;">₹${f.amount}</td>`;
+                tr.innerHTML = `<td><strong>${o.orderId}</strong></td><td>${o.client}</td><td>${o.phone}</td><td style="color: red; font-weight: bold;">₹${o.balance}</td>`;
                 tbody.appendChild(tr);
             });
+        }
+
+        let prVendorSort = { col: null, asc: true };
+        function sortPRVendor(col) {
+            if(prVendorSort.col === col) prVendorSort.asc = !prVendorSort.asc;
+            else { prVendorSort.col = col; prVendorSort.asc = true; }
+            renderPRVendor();
+        }
+
+        function renderPRVendor() {
+            const tbody = document.querySelector('#pr-vendor-table tbody');
+            tbody.innerHTML = '';
+            
+            let filteredHistory = [...(appData.vendorAllotmentsHistory || [])];
+            
+            const fDate = (document.getElementById('prv-filt-date')?.value || '').toLowerCase();
+            const fOrder = (document.getElementById('prv-filt-order')?.value || '').toLowerCase();
+            const fVendor = (document.getElementById('prv-filt-vendor')?.value || '').toLowerCase();
+            const fWork = (document.getElementById('prv-filt-work')?.value || '').toLowerCase();
+            const fAmt = parseFloat(document.getElementById('prv-filt-amt')?.value);
+
+            filteredHistory = filteredHistory.filter(o => {
+                if(fDate && !new Date(o.date).toLocaleDateString().includes(fDate)) return false;
+                if(fOrder && !o.orderId.toLowerCase().includes(fOrder)) return false;
+                if(fVendor && !o.vendor.toLowerCase().includes(fVendor)) return false;
+                if(fWork && !o.work.toLowerCase().includes(fWork)) return false;
+                if(!isNaN(fAmt) && parseFloat(o.amount) > fAmt) return false;
+                return true;
+            });
+
+            if(prVendorSort.col) {
+                filteredHistory.sort((a, b) => {
+                    let valA = a[prVendorSort.col] || ''; let valB = b[prVendorSort.col] || '';
+                    if(prVendorSort.col === 'amount') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
+                    if(prVendorSort.col === 'date') { valA = new Date(valA).getTime(); valB = new Date(valB).getTime(); }
+                    if(valA < valB) return prVendorSort.asc ? -1 : 1;
+                    if(valA > valB) return prVendorSort.asc ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            if (filteredHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--gray);">No vendor allotments found.</td></tr>`;
+                return;
+            }
+
+            filteredHistory.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${new Date(o.date).toLocaleDateString()}</td><td><strong>${o.orderId}</strong></td><td>${o.vendor}</td><td>${o.work}</td><td style="font-weight: bold;">₹${o.amount}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        let vrSort = { col: null, asc: true };
+        function sortVR(col) {
+            if(vrSort.col === col) vrSort.asc = !vrSort.asc;
+            else { vrSort.col = col; vrSort.asc = true; }
+            renderVendorReport();
+        }
+
+        function renderVendorReport() {
+            const tbody = document.querySelector('#vr-table tbody');
+            tbody.innerHTML = '';
+            
+            let filteredHistory = [...(appData.vendorAllotmentsHistory || [])];
+            
+            const fDate = (document.getElementById('vr-filt-date')?.value || '').toLowerCase();
+            const fOrder = (document.getElementById('vr-filt-order')?.value || '').toLowerCase();
+            const fVendor = (document.getElementById('vr-filt-vendor')?.value || '').toLowerCase();
+            const fWork = (document.getElementById('vr-filt-work')?.value || '').toLowerCase();
+            const fAmt = parseFloat(document.getElementById('vr-filt-amt')?.value);
+
+            filteredHistory = filteredHistory.filter(o => {
+                if(fDate && !new Date(o.date).toLocaleDateString().includes(fDate)) return false;
+                if(fOrder && !o.orderId.toLowerCase().includes(fOrder)) return false;
+                if(fVendor && !o.vendor.toLowerCase().includes(fVendor)) return false;
+                if(fWork && !o.work.toLowerCase().includes(fWork)) return false;
+                if(!isNaN(fAmt) && parseFloat(o.amount) > fAmt) return false;
+                return true;
+            });
+
+            if(vrSort.col) {
+                filteredHistory.sort((a, b) => {
+                    let valA = a[vrSort.col] || ''; let valB = b[vrSort.col] || '';
+                    if(vrSort.col === 'amount') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; }
+                    if(vrSort.col === 'date') { valA = new Date(valA).getTime(); valB = new Date(valB).getTime(); }
+                    if(valA < valB) return vrSort.asc ? -1 : 1;
+                    if(valA > valB) return vrSort.asc ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            if (filteredHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--gray);">No vendor allotments found.</td></tr>`;
+                return;
+            }
+
+            filteredHistory.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${new Date(o.date).toLocaleDateString()}</td><td><strong>${o.orderId}</strong></td><td>${o.vendor}</td><td>${o.work}</td><td style="font-weight: bold;">₹${o.amount}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Dedicated PDF/Excel Downloaders for Filtered Views
+        function getFilteredPRClient() {
+            let filteredOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0);
+            const fId = (document.getElementById('prc-filt-id')?.value || '').toLowerCase();
+            const fClient = (document.getElementById('prc-filt-client')?.value || '').toLowerCase();
+            const fPhone = (document.getElementById('prc-filt-phone')?.value || '').toLowerCase();
+            const fBal = parseFloat(document.getElementById('prc-filt-bal')?.value);
+            return filteredOrders.filter(o => {
+                if(fId && !o.orderId.toLowerCase().includes(fId)) return false;
+                if(fClient && !o.client.toLowerCase().includes(fClient)) return false;
+                if(fPhone && !o.phone.includes(fPhone)) return false;
+                if(!isNaN(fBal) && parseFloat(o.balance) > fBal) return false;
+                return true;
+            });
+        }
+        function getFilteredPRVendor(prefix) {
+            let filteredHistory = [...(appData.vendorAllotmentsHistory || [])];
+            const fDate = (document.getElementById(prefix + '-filt-date')?.value || '').toLowerCase();
+            const fOrder = (document.getElementById(prefix + '-filt-order')?.value || '').toLowerCase();
+            const fVendor = (document.getElementById(prefix + '-filt-vendor')?.value || '').toLowerCase();
+            const fWork = (document.getElementById(prefix + '-filt-work')?.value || '').toLowerCase();
+            const fAmt = parseFloat(document.getElementById(prefix + '-filt-amt')?.value);
+            return filteredHistory.filter(o => {
+                if(fDate && !new Date(o.date).toLocaleDateString().includes(fDate)) return false;
+                if(fOrder && !o.orderId.toLowerCase().includes(fOrder)) return false;
+                if(fVendor && !o.vendor.toLowerCase().includes(fVendor)) return false;
+                if(fWork && !o.work.toLowerCase().includes(fWork)) return false;
+                if(!isNaN(fAmt) && parseFloat(o.amount) > fAmt) return false;
+                return true;
+            });
+        }
+
+        function downloadPRClientPDF() {
+            let pendingOrders = getFilteredPRClient();
+            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #f26522; border-bottom: 2px solid #f26522; padding-bottom: 10px;">Filtered Client Dues</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Client Name</th><th style="padding: 10px; border: 1px solid #ddd;">Contact</th><th style="padding: 10px; border: 1px solid #ddd;">Balance Due (₹)</th></tr></thead><tbody>`;
+            let totalDues = 0;
+            pendingOrders.forEach(o => { totalDues += parseFloat(o.balance); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${o.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.client}</td><td style="padding: 8px; border: 1px solid #ddd;">${o.phone}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: red;">₹${o.balance}</td></tr>`; });
+            html += `</tbody><tfoot><tr><td colspan="3" style="text-align: right; padding: 10px; font-weight: bold;">Filtered Grand Total:</td><td style="padding: 10px; font-weight: bold; font-size: 16px; color: red;">₹${totalDues}</td></tr></tfoot></table></div>`;
+            html2pdf().set({ margin: 10, filename: `Filtered_Client_Dues_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
+        }
+        function downloadPRClientExcel() {
+            let pendingOrders = getFilteredPRClient().map(o => ({ "Order ID": o.orderId, "Client Name": o.client, "Contact Number": o.phone, "Pending Balance (₹)": o.balance }));
+            if (pendingOrders.length === 0) return alert("No pending client dues!");
+            let worksheet = XLSX.utils.json_to_sheet(pendingOrders); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Client Dues"); XLSX.writeFile(workbook, `Filtered_Client_Dues_${Date.now()}.xlsx`);
+        }
+
+        function downloadPRVendorPDF() {
+            let history = getFilteredPRVendor('prv');
+            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #4a238b; border-bottom: 2px solid #4a238b; padding-bottom: 10px;">Filtered Vendor Allotments</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Date</th><th style="padding: 10px; border: 1px solid #ddd;">Vendor Name</th><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Work Allotted</th><th style="padding: 10px; border: 1px solid #ddd;">Amount (₹)</th></tr></thead><tbody>`;
+            let totalAllotments = 0;
+            history.forEach(v => { totalAllotments += parseFloat(v.amount); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${new Date(v.date).toLocaleDateString()}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.vendor}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.work}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${v.amount}</td></tr>`; });
+            html += `</tbody><tfoot><tr><td colspan="4" style="text-align: right; padding: 10px; font-weight: bold;">Filtered Total Amount:</td><td style="padding: 10px; font-weight: bold; font-size: 16px;">₹${totalAllotments}</td></tr></tfoot></table></div>`;
+            html2pdf().set({ margin: 10, filename: `Filtered_Vendor_Allotments_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
+        }
+        function downloadPRVendorExcel() {
+            let history = getFilteredPRVendor('prv').map(v => ({ "Date": new Date(v.date).toLocaleDateString(), "Vendor Name": v.vendor, "Order ID": v.orderId, "Work Allotted": v.work, "Amount (₹)": v.amount }));
+            if (history.length === 0) return alert("No vendor records found!");
+            let worksheet = XLSX.utils.json_to_sheet(history); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Allotments"); XLSX.writeFile(workbook, `Filtered_Vendor_Allotments_${Date.now()}.xlsx`);
+        }
+
+        function downloadVRPDF() {
+            let history = getFilteredPRVendor('vr');
+            let html = `<div style="padding: 20px; font-family: 'Poppins', sans-serif;"><h2 style="color: #4a238b; border-bottom: 2px solid #4a238b; padding-bottom: 10px;">Filtered Vendor Reports</h2><p>Generated on: ${new Date().toLocaleDateString()}</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;"><thead><tr style="background-color: #f4f4f4; text-align: left;"><th style="padding: 10px; border: 1px solid #ddd;">Date</th><th style="padding: 10px; border: 1px solid #ddd;">Vendor Name</th><th style="padding: 10px; border: 1px solid #ddd;">Order ID</th><th style="padding: 10px; border: 1px solid #ddd;">Work Allotted</th><th style="padding: 10px; border: 1px solid #ddd;">Amount (₹)</th></tr></thead><tbody>`;
+            let totalAllotments = 0;
+            history.forEach(v => { totalAllotments += parseFloat(v.amount); html += `<tr><td style="padding: 8px; border: 1px solid #ddd;">${new Date(v.date).toLocaleDateString()}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.vendor}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.orderId}</td><td style="padding: 8px; border: 1px solid #ddd;">${v.work}</td><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">₹${v.amount}</td></tr>`; });
+            html += `</tbody><tfoot><tr><td colspan="4" style="text-align: right; padding: 10px; font-weight: bold;">Filtered Total Amount:</td><td style="padding: 10px; font-weight: bold; font-size: 16px;">₹${totalAllotments}</td></tr></tfoot></table></div>`;
+            html2pdf().set({ margin: 10, filename: `Vendor_Reports_${Date.now()}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(html).save();
+        }
+        function downloadVRExcel() {
+            let history = getFilteredPRVendor('vr').map(v => ({ "Date": new Date(v.date).toLocaleDateString(), "Vendor Name": v.vendor, "Order ID": v.orderId, "Work Allotted": v.work, "Amount (₹)": v.amount }));
+            if (history.length === 0) return alert("No vendor records found!");
+            let worksheet = XLSX.utils.json_to_sheet(history); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Reports"); XLSX.writeFile(workbook, `Vendor_Reports_${Date.now()}.xlsx`);
         }
 
         // ==========================================
@@ -1334,30 +1586,31 @@
             if(parseFloat(order.balance) <= 0) return alert("This order is already fully paid.");
             
             document.getElementById('modal-order-id').innerText = id; 
-            
-            const amtInput = document.getElementById('pay-modal-amt');
-            amtInput.max = order.balance; 
-            amtInput.value = order.balance; 
-            
+            document.getElementById('pay-modal-amt').value = ''; 
+            document.getElementById('pay-modal-roundoff').value = '0'; 
             document.getElementById('paymentModal').style.display = 'flex'; 
         }
         
         function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
         
         function submitPayment() {
-            const amt = parseFloat(document.getElementById('pay-modal-amt').value);
+            const amt = parseFloat(document.getElementById('pay-modal-amt').value) || 0;
+            const ro = parseFloat(document.getElementById('pay-modal-roundoff').value) || 0;
             const order = appData.orders[currentlySearchedOrderId];
             
-            if(order && amt) {
-                if(amt > parseFloat(order.balance)) {
-                    return alert("Payment amount cannot exceed the pending balance.");
+            if(order && (amt > 0 || ro > 0)) {
+                if((amt + ro) > parseFloat(order.balance)) {
+                    return alert("Total deduction (Payment + Round Off) cannot exceed the pending balance of ₹" + order.balance);
                 }
                 
                 order.advance = (parseFloat(order.advance) + amt).toFixed(2);
-                order.balance = (parseFloat(order.balance) - amt).toFixed(2);
+                order.balance = (parseFloat(order.balance) - (amt + ro)).toFixed(2);
                 saveAppData(); 
-                showToast(`Payment of ₹${amt} received.`);
+                
+                showToast(`Payment of ₹${amt} and Round off of ₹${ro} received.`);
                 document.getElementById('pay-modal-amt').value = '';
+                document.getElementById('pay-modal-roundoff').value = '0';
+                
                 closePaymentModal(); 
                 searchPayment(); 
                 updateDashboardStats();
@@ -1365,6 +1618,8 @@
                 if(parseFloat(order.balance) <= 0) {
                     openBillGenerator(order);
                 }
+            } else {
+                alert("Please enter a valid amount or round off value.");
             }
         }
 
