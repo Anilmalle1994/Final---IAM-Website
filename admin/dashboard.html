@@ -502,93 +502,35 @@
                 </div>
             </div>
 
-            <!-- Pending Reports (Client Dues & Vendor Pending) -->
+            <!-- Pending Reports -->
             <div id="pending-reports" class="view-section admin-only">
-                
                 <div class="admin-card">
-                    <h3>Pending Client Dues</h3>
-                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none; justify-content: flex-start; margin-bottom: 10px;">
-                        <button type="button" class="btn-primary" onclick="downloadPRClientPDF()">📄 Download PDF</button>
-                        <button type="button" class="btn-excel" onclick="downloadPRClientExcel()">📊 Download Excel</button>
+                    <h3>Generate Outstanding Reports</h3>
+                    <p style="font-size: 13px; color: var(--gray); margin-bottom: 20px;">Download formatted reports of all pending vendor payments and client balances.</p>
+                    <div class="form-grid" style="margin-bottom: 20px;">
+                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
+                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Client Dues</label>
+                            <button type="button" class="btn-primary" onclick="generateClientPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
+                            <button type="button" class="btn-excel" onclick="generateClientPendingExcel()">📊 Download Excel</button>
+                        </div>
+                        <div class="form-group" style="background: var(--light-gray); padding: 15px; border-radius: 8px;">
+                            <label style="margin-bottom: 10px; font-size: 16px; color: var(--primary);">Vendor Allotments</label>
+                            <button type="button" class="btn-primary" onclick="generateVendorPendingPDF()" style="margin-bottom: 10px;">📄 Download PDF</button>
+                            <button type="button" class="btn-excel" onclick="generateVendorPendingExcel()">📊 Download Excel</button>
+                        </div>
                     </div>
-                    <div class="table-responsive-wrapper">
-                        <table class="data-table" id="pr-client-table">
-                            <thead>
-                                <tr>
-                                    <th onclick="sortPRClient('orderId')">Order ID <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortPRClient('client')">Client Name <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortPRClient('phone')">Contact <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortPRClient('balance')">Balance Due (₹) <span class="sort-icon">⇅</span></th>
-                                </tr>
-                                <tr class="table-filter-row">
-                                    <th><input type="text" id="prc-filt-id" onkeyup="renderPRClient()" placeholder="Filter ID..."></th>
-                                    <th><input type="text" id="prc-filt-client" onkeyup="renderPRClient()" placeholder="Filter Client..."></th>
-                                    <th><input type="text" id="prc-filt-phone" onkeyup="renderPRClient()" placeholder="Filter Phone..."></th>
-                                    <th><input type="number" id="prc-filt-bal" onkeyup="renderPRClient()" placeholder="Max Balance..."></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+                    <div class="action-row" style="justify-content: flex-start;"><button class="btn-secondary" onclick="openEmailClient()">✉️ Compose Email to Admin</button></div>
                 </div>
-
-                <div class="admin-card">
-                    <h3>Pending Vendor Allotments</h3>
-                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none; justify-content: flex-start; margin-bottom: 10px;">
-                        <button type="button" class="btn-primary" onclick="downloadPRVendorPDF()">📄 Download PDF</button>
-                        <button type="button" class="btn-excel" onclick="downloadPRVendorExcel()">📊 Download Excel</button>
-                    </div>
-                    <div class="table-responsive-wrapper">
-                        <table class="data-table" id="pr-vendor-table">
-                            <thead>
-                                <tr>
-                                    <th onclick="sortPRVendor('date')">Date <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortPRVendor('orderId')">Order ID <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortPRVendor('vendor')">Vendor Name <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortPRVendor('work')">Work Allotted <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortPRVendor('amount')">Amount (₹) <span class="sort-icon">⇅</span></th>
-                                </tr>
-                                <tr class="table-filter-row">
-                                    <th><input type="text" id="prv-filt-date" onkeyup="renderPRVendor()" placeholder="Filter Date..."></th>
-                                    <th><input type="text" id="prv-filt-order" onkeyup="renderPRVendor()" placeholder="Filter Order..."></th>
-                                    <th><input type="text" id="prv-filt-vendor" onkeyup="renderPRVendor()" placeholder="Filter Vendor..."></th>
-                                    <th><input type="text" id="prv-filt-work" onkeyup="renderPRVendor()" placeholder="Filter Work..."></th>
-                                    <th><input type="number" id="prv-filt-amt" onkeyup="renderPRVendor()" placeholder="Max Amount..."></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
             </div>
 
             <!-- Vendor Reports -->
             <div id="vendor-reports" class="view-section admin-only">
                 <div class="admin-card">
                     <h3>Vendor Allotment Reports</h3>
-                    <div class="action-row" style="margin-top: 0; padding-top: 0; border: none; justify-content: flex-start; margin-bottom: 10px;">
-                        <button type="button" class="btn-primary" onclick="downloadVRPDF()">📄 Download PDF</button>
-                        <button type="button" class="btn-excel" onclick="downloadVRExcel()">📊 Download Excel</button>
-                    </div>
-                    <div class="table-responsive-wrapper" style="margin-top: 10px;">
-                        <table class="data-table" id="vr-table">
-                            <thead>
-                                <tr>
-                                    <th onclick="sortVR('date')">Date <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortVR('orderId')">Order ID <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortVR('vendor')">Vendor Name <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortVR('work')">Work Allotted <span class="sort-icon">⇅</span></th>
-                                    <th onclick="sortVR('amount')">Amount (₹) <span class="sort-icon">⇅</span></th>
-                                </tr>
-                                <tr class="table-filter-row">
-                                    <th><input type="text" id="vr-filt-date" onkeyup="renderVendorReport()" placeholder="Filter Date..."></th>
-                                    <th><input type="text" id="vr-filt-order" onkeyup="renderVendorReport()" placeholder="Filter Order..."></th>
-                                    <th><input type="text" id="vr-filt-vendor" onkeyup="renderVendorReport()" placeholder="Filter Vendor..."></th>
-                                    <th><input type="text" id="vr-filt-work" onkeyup="renderVendorReport()" placeholder="Filter Work..."></th>
-                                    <th><input type="number" id="vr-filt-amt" onkeyup="renderVendorReport()" placeholder="Max Amount..."></th>
-                                </tr>
-                            </thead>
+                    <button type="button" class="btn-primary" onclick="renderVendorReport()">Refresh Report List</button>
+                    <div class="table-responsive-wrapper" style="margin-top: 20px;">
+                        <table class="data-table" id="vendor-report-table">
+                            <thead><tr><th>Date</th><th>Order ID</th><th>Vendor</th><th>Work Item</th><th>Allotment Amt (₹)</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -617,7 +559,7 @@
             <p><strong>Order ID:</strong> <span id="modal-order-id"></span></p>
             <div class="form-group">
                 <label>Amount Received (₹)</label>
-                <input type="number" id="pay-modal-amt">
+                <input type="number" id="pay-modal-amt" oninput="if(parseFloat(this.value) > parseFloat(this.max)) this.value = this.max;">
             </div>
             <div class="form-group">
                 <label>Round Off / Discount (₹)</label>
@@ -734,7 +676,23 @@
         };
 
         function logout() {
-            window.location.replace('https://www.anilmalle.in/admin/'); 
+            // Clear JS accessible cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            // Clear Session Storage
+            sessionStorage.clear();
+            
+            // Clear typical local storage auth tokens (without deleting the database)
+            Object.keys(localStorage).forEach(key => {
+                if (key.toLowerCase().includes('auth') || key.toLowerCase().includes('token') || key.toLowerCase().includes('supabase')) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            alert('Securely logged out.');
+            window.location.replace('https://www.anilmalle.in/admin/?logout=' + new Date().getTime()); 
         }
 
         // ==========================================
@@ -824,6 +782,15 @@
             });
             const nextSerial = String(maxSerial + 1).padStart(3, '0');
             return `IAM-${dateStr}-${nextSerial}`;
+        }
+
+        // ==========================================
+        // EMAIL COMPOSE LOGIC
+        // ==========================================
+        function openEmailClient() {
+            const subject = encodeURIComponent(`Monthly Dues Report - ${new Date().toLocaleString('default', { month: 'long' })}`);
+            const body = encodeURIComponent(`Hello,\n\nPlease find attached the monthly reports for Client Pendings and Vendor Allotments downloaded from the system today.\n\nRegards,\nSystem Admin`);
+            window.open(`mailto:iamdesign81@gmail.com?subject=${subject}&body=${body}`, '_self');
         }
 
         // ==========================================
@@ -1121,7 +1088,6 @@
                 if(type === 'Others') type = row.querySelector('.nw-work-others-input').value.trim() || 'Other Work';
                 const desc = row.querySelector('.nw-work-desc').value.trim();
                 
-                // WhatsApp & Order List Work String formatting
                 let finalWorkString = desc ? desc : type;
                 workTypesArray.push(finalWorkString);
 
@@ -1252,6 +1218,7 @@
             saveAppData(); showToast("Vendor Allotted Successfully!"); document.getElementById('va-rows-container').innerHTML = '';
         }
 
+        // Vendor Master
         function addMaterialRow() {
             const container = document.getElementById('vm-materials-container');
             const row = document.createElement('div');
@@ -1260,7 +1227,6 @@
             row.innerHTML = `<div class="form-group"><label>Material Name</label><input type="text" class="vm-mat-name"></div><div class="form-group"><label>Rate (₹)</label><input type="number" class="vm-mat-rate"></div>`;
             container.appendChild(row);
         }
-        
         function saveVendor() {
             const vName = document.getElementById('vm-name').value.trim();
             if(!vName) return alert("Vendor Name required!");
@@ -1586,8 +1552,11 @@
             if(parseFloat(order.balance) <= 0) return alert("This order is already fully paid.");
             
             document.getElementById('modal-order-id').innerText = id; 
-            document.getElementById('pay-modal-amt').value = ''; 
-            document.getElementById('pay-modal-roundoff').value = '0'; 
+            
+            const amtInput = document.getElementById('pay-modal-amt');
+            amtInput.max = order.balance; 
+            amtInput.value = order.balance; 
+            
             document.getElementById('paymentModal').style.display = 'flex'; 
         }
         
