@@ -159,6 +159,7 @@
                     <li><a href="#" class="nav-btn" data-target="website-content"><span class="nav-text">🌐 Web Content</span></a></li>
                     <li><a href="#" class="nav-btn" data-target="pending-reports"><span class="nav-text">📑 Pending Reports</span></a></li>
                     <li><a href="#" class="nav-btn" data-target="vendor-reports"><span class="nav-text">📈 Vendor Reports</span></a></li>
+                    <li><a href="#" class="nav-btn" data-target="clients-data"><span class="nav-text">📇 Clients Data</span></a></li>
                 </ul>
             </li>
         </ul>
@@ -318,7 +319,16 @@
             <div id="vendor-allotment" class="view-section admin-only">
                 <div class="admin-card">
                     <h3>Allocate Work to Vendor</h3>
-                    <div class="form-grid"><div class="form-group"><label>Order ID</label><div style="display: flex; gap: 10px;"><input type="text" id="va-orderid"><button type="button" class="btn-secondary" onclick="fetchOrderForAllotment()">Fetch</button></div></div></div>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Search Order ID</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="va-orderid" style="flex: 1;" placeholder="Enter Order ID or scan QR...">
+                                <button type="button" class="btn-secondary" onclick="openQRScanner('va-orderid', fetchOrderForAllotment)">📷 Scan</button>
+                                <button type="button" class="btn-secondary" onclick="fetchOrderForAllotment()">Fetch</button>
+                            </div>
+                        </div>
+                    </div>
                     <div id="va-rows-container"></div>
                     <div class="action-row"><button type="button" class="btn-primary" onclick="saveVendorAllotment()">Save Allotment</button></div>
                 </div>
@@ -498,6 +508,17 @@
                 </div>
             </div>
 
+            <!-- Clients Data (.VCF) -->
+            <div id="clients-data" class="view-section admin-only">
+                <div class="admin-card">
+                    <h3>Clients Directory</h3>
+                    <p style="font-size: 13px; color: var(--gray); margin-bottom: 20px;">Download all your unique clients' contact information in vCard (.vcf) format to easily import them into your phone contacts.</p>
+                    <div class="action-row" style="justify-content: flex-start;">
+                        <button class="btn-primary" onclick="downloadClientsVCF()">📇 Download Contacts (.VCF)</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -507,7 +528,11 @@
             <span class="close-modal" onclick="closePaymentModal()">&times;</span>
             <h3>Receive Payment</h3>
             <p><strong>Order ID:</strong> <span id="modal-order-id"></span></p>
-            <div class="form-group"><label>Amount Received (₹)</label><input type="number" id="pay-modal-amt"></div>
+            <div class="form-group">
+                <label>Amount Received (₹)</label>
+                <!-- Cap the input visually as well -->
+                <input type="number" id="pay-modal-amt" oninput="if(parseFloat(this.value) > parseFloat(this.max)) this.value = this.max;">
+            </div>
             <div class="form-group"><label>Mode</label><select id="pay-modal-mode"><option>Cash</option><option>Online</option></select></div>
             <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="submitPayment()">Submit</button>
         </div>
@@ -532,6 +557,14 @@
         // PREVENT BACK BUTTON & AUTO-LOGOUT LOGIC
         // ==========================================
         
+        // Immediately check if this was a page refresh
+        window.addEventListener('load', function() {
+            const navEntries = performance.getEntriesByType("navigation");
+            if (navEntries.length > 0 && navEntries[0].type === "reload") {
+                window.location.replace('https://www.anilmalle.in/admin/');
+            }
+        });
+
         // Prevent Back Button - Redirect to Login immediately
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function() {
@@ -558,8 +591,6 @@
         };
 
         function logout() {
-            // Replace history state to redirect strictly to the requested login path
-            alert('Session logged out.');
             window.location.replace('https://www.anilmalle.in/admin/'); 
         }
 
@@ -657,7 +688,7 @@
         }
 
         // ==========================================
-        // PDF & EXCEL GENERATION LOGIC
+        // PDF, EXCEL & VCF GENERATION LOGIC
         // ==========================================
         function generateClientPendingPDF() {
             let pendingOrders = Object.values(appData.orders).filter(o => parseFloat(o.balance) > 0);
@@ -687,6 +718,27 @@
             let history = (appData.vendorAllotmentsHistory || []).map(v => ({ "Date": new Date(v.date).toLocaleDateString(), "Vendor Name": v.vendor, "Order ID": v.orderId, "Work Allotted": v.work, "Amount (₹)": v.amount }));
             if (history.length === 0) return alert("No vendor records found!");
             let worksheet = XLSX.utils.json_to_sheet(history); let workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Allotments"); XLSX.writeFile(workbook, `Vendor_Allotments_${Date.now()}.xlsx`);
+        }
+
+        function downloadClientsVCF() {
+            let vcfData = "";
+            let clientsAdded = new Set();
+            Object.values(appData.orders).forEach(order => {
+                let uniqueKey = order.client.trim().toLowerCase() + "_" + order.phone.trim();
+                if(!clientsAdded.has(uniqueKey)) {
+                    clientsAdded.add(uniqueKey);
+                    vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${order.client}\nTEL;TYPE=CELL:${order.phone}\nEND:VCARD\n`;
+                }
+            });
+
+            if(vcfData === "") return alert("No clients found in the database!");
+
+            let blob = new Blob([vcfData], { type: "text/vcard" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Clients_Contacts_${Date.now()}.vcf`;
+            link.click();
+            showToast("Downloading Clients VCF...");
         }
 
         // ==========================================
@@ -977,6 +1029,7 @@
             };
             saveAppData();
             
+            // Extract QR code for auto-download
             const qrCanvas = document.querySelector('#qrcode canvas');
             let qrDataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : null;
 
@@ -1063,6 +1116,7 @@
             saveAppData(); showToast("Vendor Allotted Successfully!"); document.getElementById('va-rows-container').innerHTML = '';
         }
 
+        // Vendor Master
         function addMaterialRow() {
             const container = document.getElementById('vm-materials-container');
             const row = document.createElement('div');
@@ -1178,7 +1232,11 @@
             if(parseFloat(order.balance) <= 0) return alert("This order is already fully paid.");
             
             document.getElementById('modal-order-id').innerText = id; 
-            document.getElementById('pay-modal-amt').value = order.balance; // auto-fill remaining balance
+            
+            const amtInput = document.getElementById('pay-modal-amt');
+            amtInput.max = order.balance; 
+            amtInput.value = order.balance; 
+            
             document.getElementById('paymentModal').style.display = 'flex'; 
         }
         
@@ -1197,9 +1255,9 @@
                 order.balance = (parseFloat(order.balance) - amt).toFixed(2);
                 saveAppData(); 
                 showToast(`Payment of ₹${amt} received.`);
-                document.getElementById('pay-modal-amt').value = ''; // clear input
+                document.getElementById('pay-modal-amt').value = '';
                 closePaymentModal(); 
-                searchPayment(); // refresh the view to update balance and hide button if 0
+                searchPayment(); 
                 updateDashboardStats();
             }
         }
